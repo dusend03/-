@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SQLD 63회 가채점</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: OMR answer-sheet tool. Sticky control bar, number grid, single column of question cards, result sheet on submit. */
+:root{
+  --bg:#f3f5f8; --paper:#ffffff; --ink:#18212f; --muted:#5d6878; --line:#d6dce5;
+  --accent:#1f4fbf; --accent-soft:#e3eafb;
+  --ok:#11845b; --ok-soft:#dcf3e9; --amb:#b86e00; --amb-soft:#fbefd9; --bad:#c42b3a; --bad-soft:#fbe1e4;
+  --code-bg:#eef1f6;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141b; --paper:#181e28; --ink:#e6eaf1; --muted:#9aa4b4; --line:#2c3545;
+  --accent:#7ea2ff; --accent-soft:#1f2c4d;
+  --ok:#4cc995; --ok-soft:#14352a; --amb:#f0b452; --amb-soft:#3a2c12; --bad:#ff7a86; --bad-soft:#40191e;
+  --code-bg:#121821; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#10141b; --paper:#181e28; --ink:#e6eaf1; --muted:#9aa4b4; --line:#2c3545;
+  --accent:#7ea2ff; --accent-soft:#1f2c4d;
+  --ok:#4cc995; --ok-soft:#14352a; --amb:#f0b452; --amb-soft:#3a2c12; --bad:#ff7a86; --bad-soft:#40191e;
+  --code-bg:#121821; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header.top{padding-top:28px;display:flex;flex-direction:column;gap:6px}
+h1{font-size:1.6rem;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0;font-size:.92rem}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;box-shadow:0 4px 14px rgb(0 0 0 / .06)}
+.bar .prog{font-variant-numeric:tabular-nums;font-weight:600;margin-right:auto}
+.bar label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:.9rem;cursor:pointer}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:7px 14px}
+button:focus-visible,.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--paper);font-weight:600}
+button.ghost{border-color:transparent;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.86rem;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.grid a{display:flex;align-items:center;justify-content:center;height:32px;border-radius:6px;border:1px solid var(--line);background:var(--paper);
+  color:var(--muted);text-decoration:none;font-size:.82rem;font-variant-numeric:tabular-nums}
+.grid a.marked{color:var(--ink);font-weight:600;border-color:var(--accent);background:var(--accent-soft)}
+.grid a.r-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:600}
+.grid a.r-amb{background:var(--amb-soft);border-color:var(--amb);color:var(--amb);font-weight:600}
+.grid a.r-bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:600}
+.subj{font-size:.8rem;letter-spacing:.08em;color:var(--muted);font-weight:600;margin:10px 0 -6px;text-transform:uppercase}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:90px;min-width:0}
+.q.r-ok{border-left:4px solid var(--ok)} .q.r-amb{border-left:4px solid var(--amb)} .q.r-bad{border-left:4px solid var(--bad)}
+.qh{display:flex;gap:10px;align-items:baseline}
+.qn{font-family:var(--f-mono);font-weight:600;color:var(--accent);flex:none}
+.qt{font-weight:500;min-width:0}
+.badge{font-size:.75rem;padding:1px 8px;border-radius:99px;margin-left:auto;flex:none;white-space:nowrap;font-weight:600}
+.badge.ok{background:var(--ok-soft);color:var(--ok)} .badge.amb{background:var(--amb-soft);color:var(--amb)} .badge.bad{background:var(--bad-soft);color:var(--bad)}
+pre{margin:0;background:var(--code-bg);border-radius:8px;padding:10px 12px;font-family:var(--f-mono);font-size:.82rem;line-height:1.55;overflow-x:auto;white-space:pre;color:var(--ink)}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;user-select:none;background:transparent;text-align:left;width:100%;color:var(--ink)}
+.opt:hover{background:var(--bg)}
+.opt .box{flex:none;width:20px;height:20px;border-radius:4px;border:1.5px solid var(--line);margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;color:transparent}
+.opt.s1{border:1.5px dashed var(--accent)}
+.opt.s1 .box{border:2px dashed var(--accent);color:var(--accent);opacity:.9}
+.opt.s2{border:1.5px solid var(--accent);background:var(--accent-soft)}
+.opt.s2 .box{border:2px solid var(--accent);background:var(--accent);color:var(--paper)}
+.opt .num{font-family:var(--f-mono);color:var(--muted);flex:none}
+.opt .txt{min-width:0;overflow-wrap:anywhere}
+.opt .txt.missing{color:var(--muted);font-style:italic}
+.opt.key .num{color:var(--ok);font-weight:700}
+.opt.key .txt::after{content:" ← 정답";color:var(--ok);font-weight:600;font-size:.85em}
+.opt.cand .txt::after{content:" ← 정답 후보";color:var(--amb);font-weight:600;font-size:.85em}
+.opt.idk{color:var(--muted)}
+.ans{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+.ans .k{font-weight:600}
+.ans .ex{color:var(--muted)}
+.ans .note{color:var(--amb);font-size:.86rem}
+.keyedit{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.82rem;color:var(--muted)}
+.keyedit button{padding:2px 9px;font-family:var(--f-mono);font-size:.8rem}
+.keyedit button.on{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+/* results */
+.result{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;scroll-margin-top:90px}
+.result h2{margin:0;font-size:1.2rem}
+.range{display:flex;flex-wrap:wrap;gap:10px}
+.range .tile{flex:1 1 180px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:0}
+.range .tile .l{font-size:.8rem;color:var(--muted)}
+.range .tile .v{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.range .tile .s{font-size:.8rem;color:var(--muted)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;min-width:440px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.8rem;color:var(--muted);font-weight:600}
+td b{font-size:1.05rem}
+td small{color:var(--muted);display:block;font-size:.75rem}
+tr.ok td:first-child{color:var(--ok);font-weight:600} tr.amb td:first-child{color:var(--amb);font-weight:600} tr.bad td:first-child{color:var(--bad);font-weight:600}
+.pass{font-weight:600} .pass.y{color:var(--ok)} .pass.n{color:var(--bad)} .pass.m{color:var(--amb)}
+.foot{color:var(--muted);font-size:.8rem}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.9rem}
+@media (max-width:520px){.grid{grid-template-columns:repeat(10,1fr);gap:3px}.grid a{height:28px;font-size:.72rem}h1{font-size:1.35rem}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>SQLD 제63회 가채점</h1>
+    <p class="sub">2026-11-14 시행 · 응시자 복원 문제 50문항 (1과목 10 · 2과목 40, 문항당 2점) · 출처: sqldpass.com 가채점 게시판. 공식 문제·정답이 아니라 복원본이라 보기와 정답이 실제와 다를 수 있어요.</p>
+  </header>
+
+  <div class="bar" id="bar">
+    <span class="prog" id="prog">0 / 50 표시</span>
+    <label for="peek"><input type="checkbox" id="peek"> 정답 미리 보기</label>
+    <span id="resetWrap"><button class="ghost" id="reset" type="button">초기화</button></span>
+    <button class="primary" id="submit" type="button">제출하고 채점</button>
+  </div>
+
+  <div class="legend">
+    <span><b>1번 클릭</b> 점선 = 고른 것 같은데 애매</span>
+    <span><b>2번 클릭</b> 실선 = 확실히 골랐음</span>
+    <span><b>3번 클릭</b> 해제</span>
+    <span>복수 선택 가능 · 정답이 내가 표시한 보기 중에 없으면 확실히 틀림</span>
+  </div>
+
+  <section class="result" id="result" hidden></section>
+
+  <nav class="grid" id="grid" aria-label="문항 바로가기"></nav>
+
+  <main id="list" style="display:flex;flex-direction:column;gap:14px"></main>
+
+  <p class="foot">표시한 답과 정답 수정 내용은 이 브라우저에만 저장돼요.</p>
+</div>
+
+<script>
+const Q = [
+// ---------- 1과목 ----------
+{n:1,s:1,q:"업무가 어떤 데이터와 관련이 있는지, 데이터와 데이터 사이의 관계는 무엇인지를 중심으로 모델링하는 관점은?",
+ o:["데이터 관점","프로세스 관점","상관 관점","유연성 관점"],a:[1],
+ ex:"데이터 관점(What)은 업무와 데이터, 데이터와 데이터 사이의 관계를 봅니다. 프로세스 관점(How)은 업무가 실제로 하는 일을, 상관 관점(Interaction)은 업무 처리 방법에 따라 데이터가 받는 영향을 봅니다."},
+{n:2,s:1,q:"물리적 데이터 모델링에 대한 설명으로 옳지 않은 것은?",
+ o:["물리적 데이터 모델링의 핵심은 누가 어떻게 데이터에 접근하는지를 기록하는 것이다.","데이터를 저장하는 구조(내부 스키마)가 물리적 스키마다.","테이블, 칼럼 등이 물리적인 저장장치에 어떻게 기록되는지를 정의한다.","계층 ... 인 경우 시간이 가장 많이 소요된다."],a:[1,4],d:true,
+ note:"정답이 ①인지 ④인지 의견이 팽팽해요. ①은 접근 기록이 물리 모델링의 '핵심'은 아니라는 쪽, ④는 시간이 가장 많이 드는 단계가 아니라는 쪽 근거예요."},
+{n:3,s:1,q:"업무상 존재하는 데이터로서 처음부터 생성되어 다른 엔터티에 의존하지 않고 독립적으로 존재할 수 있으며, 다른 엔터티의 부모 역할을 하는 엔터티는?",
+ o:["유형 엔터티","개념 엔터티","기본 엔터티","사건 엔터티"],a:[3],
+ ex:"기본 엔터티(키 엔터티)는 다른 엔터티로부터 주식별자를 상속받지 않고 자신의 고유한 주식별자를 가지며, 다른 엔터티의 부모가 됩니다. 개념·유형·사건 엔터티는 유무형에 따른 분류이고, 기본 엔터티는 발생 시점에 따른 분류입니다."},
+{n:4,s:1,q:"업무에서 바로 가져온 속성(ㄱ)과 다른 속성을 계산해 만든 속성(ㄴ)을 바르게 짝지은 것은?",
+ o:["기본속성, 파생속성","기본속성, 설계속성","일반속성, 파생속성","일반속성, 설계속성"],a:[1],
+ ex:"업무로부터 추출한 속성은 기본속성, 다른 속성으로부터 계산·변형해 만든 속성은 파생속성입니다. 설계속성은 업무에 없지만 설계하면서 새로 만든 속성(코드, 일련번호 등)입니다."},
+{n:5,s:1,q:"바커 표기법에서 'A는 B의 하나 이상의 인스턴스에 반드시 포함되어야 한다'를 나타낸 것은?",
+ o:["A ───────< B (전부 실선)","A ………──── B","A ………──< B","A ……───|< B"],a:[1],
+ ex:"'반드시'는 실선으로 표시하므로 전부 실선에 까마귀발이 붙은 ①이 맞다는 의견이 가장 많아요.",
+ note:"③·④라는 의견도 있어요."},
+{n:6,s:1,q:"고객과 서비스의 M:N 관계를 해소해 표현한 것으로 옳은 것은? (고객 한 명은 같은 서비스를 중복해서 신청할 수 없다)",
+ o:[null,null,"고객 ……< 서비스계약(#서비스계약번호, *고객명, *서비스명) >…… 서비스","고객 ……|< 서비스계약(#고객명, #서비스명) >|…… 서비스"],a:[4],
+ ex:"M:N 관계는 교차 엔터티(서비스계약)를 두어 1:M 관계 두 개로 풉니다. 같은 고객이 같은 서비스를 중복 신청할 수 없으므로, 고객명과 서비스명을 합친 복합 식별자를 서비스계약의 주식별자로 두고 두 관계를 식별 관계(|)로 표현합니다."},
+{n:7,s:1,q:"주식별자가 NULL이어서는 안 되고 반드시 값이 존재해야 한다는 특징은?",
+ o:["최소성","존재성","유일성","불변성"],a:[2],
+ ex:"주식별자의 특징은 유일성(모든 인스턴스를 유일하게 구분), 최소성(구성 속성 수가 최소), 불변성(값이 바뀌지 않음), 존재성(반드시 값이 있음, NULL 불가)입니다."},
+{n:8,s:1,q:"완전 함수 종속을 만족하도록 부분 함수 종속을 제거한 정규형은?",
+ o:["제1정규형","제2정규형","제3정규형","BCNF"],a:[2],
+ ex:"제2정규형은 기본키의 일부에만 종속되는 속성(부분 함수 종속)을 분리해, 모든 일반 속성이 기본키 전체에 완전 함수 종속이 되도록 한 상태입니다."},
+{n:9,s:1,q:"식별자 관계와 비식별자 관계에 대한 설명으로 옳지 않은 것은?",
+ o:["식별자 관계는 비식별자 관계보다 강한 관계이다.","식별자 관계를 맺으면 부모의 주식별자가 자식의 주식별자로 전이된다.","비식별자 관계는 부모 쪽에서 반드시 필수 관계여야 한다.",null],a:[3],
+ ex:"비식별자 관계는 부모 없이도 자식이 생성될 수 있어, 부모 쪽 관계를 선택(Optional)으로 둘 수 있습니다."},
+{n:10,s:1,q:"인조식별자를 만드는 방법으로 적절하지 않은 것은?",
+ o:["IDENTITY 열로 정의해 행이 입력될 때 DBMS가 일련번호를 자동으로 부여한다.","UUID를 사용한다.","모든 컬럼의 속성값을 결합해 하나의 식별자로 만든다.","시퀀스(SEQUENCE) 객체로 생성한다."],a:[3],
+ ex:"인조식별자는 업무와 무관하게 시스템이 만들어 붙이는 식별자입니다. 모든 컬럼 값을 결합한 것은 인조식별자가 아니라 본질식별자를 합친 복합 식별자에 가깝습니다."},
+// ---------- 2과목 ----------
+{n:11,s:2,q:"SQL 명령어와 종류가 잘못 짝지어진 것은?",
+ o:["INSERT - DCL","UPDATE - DML","DROP - DDL (또는 GRANT - DCL)","COMMIT - TCL"],a:[1],
+ ex:"INSERT는 데이터를 조작하는 DML입니다. UPDATE는 DML, DROP은 DDL, GRANT는 DCL, COMMIT은 TCL로 모두 맞게 짝지어져 있습니다."},
+{n:12,s:2,q:"다음 SQL 가운데 오류가 나는 것은? (U1 사용자의 T1 테이블, C1 컬럼)",
+ o:["SELECT C1 FROM T1 a;","SELECT T1.C1 FROM U1.T1;","SELECT T1.C1 FROM U1.T1 a;","SELECT U1.T1.C1 FROM U1.T1;"],a:[3],
+ ex:"FROM 절에서 테이블 별칭(a)을 지정하면 SELECT 절에서는 원래 테이블명(T1)으로 컬럼을 참조할 수 없고 별칭으로 써야 합니다.",note:"보기 순서는 다를 수 있어요."},
+{n:13,s:2,q:"EMP 테이블에서 다음 조건으로 조회한 결과로 옳은 것은?",code:"WHERE JOB = 'CLERK' OR ENAME LIKE 'K%' AND SAL >= 3000",
+ o:["KING 1행","JOB이 CLERK인 사원 4명과 KING, 총 5행","CLERK·KING이 아닌 다른 JOB의 행이 섞인 결과","조건과 무관하게 섞인 4행"],a:[2],
+ ex:"AND가 OR보다 먼저 계산되어 조건은 JOB = 'CLERK' OR (ENAME LIKE 'K%' AND SAL >= 3000)이 됩니다. 급여와 관계없이 CLERK 4명이 모두 나오고, K로 시작하면서 급여가 3000 이상인 KING이 더해져 5행입니다."},
+{n:14,s:2,q:"다음 연산자를 우선순위가 높은 것부터 순서대로 나열한 것은?",code:"ㄱ. AND, OR\nㄴ. NOT\nㄷ. 괄호 ( )\nㄹ. 비교 연산자",
+ o:[null,"ㄴ → ㄷ → ㄹ → ㄱ","ㄷ → ㄱ → ㄹ → ㄴ","ㄷ → ㄴ → ㄹ → ㄱ"],a:[4],
+ ex:"SQLD 가이드 기준 연산자 우선순위는 괄호 → NOT → 비교 연산자 → AND → OR 순입니다."},
+{n:15,s:2,q:"CEIL(35.08)의 결과는?",o:["오류","35.1","35.08","36"],a:[4],
+ ex:"CEIL은 주어진 수보다 크거나 같은 가장 작은 정수를 돌려주므로 36입니다."},
+{n:16,s:2,q:"T1, T2 테이블이 다음과 같을 때 SQL의 결과는?",code:"T1(C1): 1, 2, 3, 4, 5\nT2(C1): 1, 2, 3\n\nSELECT COUNT(*)\nFROM T1 CROSS JOIN T2\nWHERE T1.C1 <> T2.C1;",
+ o:["6","8","12","15"],a:[3],ex:"CROSS JOIN 결과는 5 × 3 = 15행이고, 이 중 값이 같은 (1,1), (2,2), (3,3) 세 행을 빼면 12행입니다."},
+{n:17,s:2,q:"WHERE (C1, C2) IN ((1, 2), (1, 3))과 결과가 같은 것은?",
+ o:["WHERE C1 IN (1, 2) AND C2 IN (2, 3)","WHERE C1 IN (1, 2) OR C2 IN (2, 3)","WHERE (C1 = 1 OR C2 = 2) AND (C1 = 1 OR C2 = 3)","WHERE C1 = 1 AND (C2 = 2 OR C2 = 3)"],a:[4],
+ ex:"다중 컬럼 IN은 (C1, C2) 쌍이 (1, 2) 또는 (1, 3)과 정확히 일치하는 행만 고릅니다. 즉 C1 = 1이면서 C2가 2 또는 3인 행입니다."},
+{n:18,s:2,q:"이름에 밑줄(_) 문자가 들어간 행만 조회하는 조건으로 옳은 것은?",
+ o:["LIKE '%_%'","LIKE '%\\_%'","LIKE '%@_%' ESCAPE '@'","LIKE '%_%' ESCAPE '_'"],a:[3],
+ ex:"LIKE에서 _는 임의의 한 글자를 뜻하는 와일드카드라, 문자 그대로의 _를 찾으려면 ESCAPE로 지정한 문자(@)를 _ 앞에 붙여야 합니다. ②는 ESCAPE 절이 없어 \\가 이스케이프 문자로 동작하지 않습니다."},
+{n:19,s:2,q:"다음 정규식으로 이메일 형식을 검사할 때, 형식에 맞지 않는 값은?",code:"\\w+@\\w+(\\.\\w+)+",
+ o:[null,"ab_cd@... 처럼 @ 앞에 밑줄(_)이 들어간 값","atHOME@... 처럼 @ 뒤에 점(.) 없이 끝나는 값","admin@....... 처럼 점이 여러 번 들어간 값"],a:[3],
+ ex:"@ 뒤에 '.문자' 묶음이 한 번 이상 와야 하는데, ③은 점 없이 끝나 패턴에 맞지 않습니다. \\w는 밑줄(_)도 포함하므로 ②는 맞는 형식입니다."},
+{n:20,s:2,q:"(Oracle) NVL(MAX(컬럼), 0) + 1과 결과가 같은 것은?",
+ o:["COALESCE(MAX(컬럼) + 1, 1)","NULLIF(MAX(컬럼) ..., ...)를 쓴 식","NULLIF(MAX(컬럼), ...) + 1","CASE WHEN MAX(컬럼) = NULL THEN 1 ELSE MAX(컬럼) + 1 END"],a:[1],
+ ex:"①은 MAX가 NULL이면 1, 아니면 MAX + 1을 돌려주어 NVL(MAX, 0) + 1과 같습니다. ④는 = NULL 비교가 참이 되지 않아 MAX가 NULL일 때 NULL이 됩니다.",note:"④가 IS NULL이었다는 기억도 있어요."},
+{n:21,s:2,q:"부양가족이 한 명도 없는 직원을 조회하는 SQL로 옳은 것은?",
+ o:["WHERE EXISTS (... 사원번호 = 부양가족의 사원번호)","WHERE EXISTS (... 사원번호 <> 부양가족의 사원번호)","WHERE NOT EXISTS (... 사원번호 = 부양가족의 사원번호)","WHERE NOT EXISTS (... 사원번호 <> 부양가족의 사원번호)"],a:[3],
+ ex:"자기 사원번호와 같은 부양가족 행이 하나도 없는 직원을 골라야 하므로 NOT EXISTS와 = 조건을 함께 씁니다."},
+{n:22,s:2,q:"다음 원본 테이블을 아래 결과처럼 바꾸는 SQL로 옳은 것은?",
+ code:"[원본]\n그룹 | MONTH | AMT\na    | JAN   | 100\na    | FEB   | 150\na    | MAR   | 200\nb    | JAN   | 150\nb    | FEB   | 200\nb    | MAR   | 250\n\n[결과]\n그룹 | JAN | FEB | MAR\na    | 100 | 150 | 200\nb    | 150 | 200 | 250",
+ o:["FROM 절 인라인 뷰에서 그룹·MONTH·AMT 세 컬럼을 고른 뒤 PIVOT (SUM(AMT) FOR MONTH IN (...))","UNPIVOT을 쓴 SQL","UNPIVOT을 쓴 SQL","FROM 절 인라인 뷰에서 컬럼 하나만 고른 뒤 PIVOT (SUM(AMT) FOR MONTH IN (...))"],a:[1],
+ ex:"PIVOT은 인라인 뷰에 남은 컬럼 가운데 집계 대상(AMT)과 FOR 절 컬럼(MONTH)을 뺀 나머지(그룹)로 묶습니다. 행을 열로 바꾸는 문제라 UNPIVOT은 맞지 않습니다."},
+{n:23,s:2,q:"다음 SQL의 결과는?",code:"SELECT ID FROM T\nGROUP BY ID\nHAVING COUNT(*) = 2\nORDER BY (CASE WHEN ID = 999 THEN 0 ELSE ID END);",
+ o:["100, 999","999, 100","100, 200, 999","999, 200, 100"],a:[2],
+ ex:"두 번 나온 ID만 남기고, 정렬 기준에서 999는 0으로 바뀌어 맨 앞에 옵니다.",note:"테이블 값은 복원되지 않았어요."},
+{n:24,s:2,q:"다음 테이블에서 부서 a의 MAX(SAL)과 부서 b의 MIN(SAL)을 UNION으로 합친 결과를 묻는 문제",
+ code:"사원 | 부서 | SAL\n1    | a    | 2975\n2    | a    | 2500\n3    | a    | ...\n4    | b    | 3000\n5    | b    | 3000",
+ o:["8425","11625","6000",null],a:[1],note:"테이블 값과 정확한 SQL은 복원되지 않았어요."},
+{n:25,s:2,q:"고객별 주문금액 합계(SUM)가 등급의 최소~최대 금액 사이(BETWEEN)에 드는 등급을 구한 결과는?",
+ o:["VVIP, VIP","VIP, GOLD","결과 없음(공집합)","VVIP, VIP, GOLD, SILVER"],a:[1,3],d:true,
+ note:"①이 다수 의견이지만 ③이 정답이라는 의견도 있어요. 테이블 값은 복원되지 않았어요."},
+{n:26,s:2,q:"(Oracle) NULL이 들어 있는 컬럼을 정렬할 때, 정렬 결과가 나머지와 다른 SQL은?",
+ o:["ORDER BY 컬럼","ORDER BY NVL(컬럼, 0)","ORDER BY 컬럼 NULLS LAST","ORDER BY 3 (같은 컬럼의 위치 번호)"],a:[2],
+ ex:"Oracle은 오름차순 정렬에서 NULL을 맨 뒤에 둡니다. ①·③·④는 모두 NULL이 마지막에 오지만, ②는 NULL을 0으로 바꿔 정렬하므로 NULL 행이 앞쪽으로 옵니다."},
+{n:27,s:2,q:"ROWNUM으로 가장 높은 값 한 행을 뽑는 SQL 가운데 결과가 다른 것은?",
+ o:[null,null,"ROWNUM = 1을 먼저 뽑은 뒤 바깥에서 ORDER BY 한 SQL",null],a:[3],d:true,
+ ex:"ROWNUM은 정렬 전에 붙으므로, 인라인 뷰 안에서 먼저 정렬하지 않으면 원하는 최댓값이 아닌 임의의 첫 행이 나옵니다.",
+ note:"이 보기가 정답이라는 건 맞지만, 실제 시험에서 몇 번 위치였는지는 확인되지 않았어요."},
+{n:28,s:2,q:"다음 두 SQL의 결과를 차례로 나열한 것은?",
+ code:"TAB1(COL): 1, 2, 3\nTAB2(COL): 1, 2, 4\nTAB3(COL): 1, 2, 3\n\n[SQL 1]\nSELECT SUM(C.COL)\nFROM TAB1 A LEFT OUTER JOIN TAB2 B\n  ON A.COL = B.COL AND B.COL <> 2\nRIGHT OUTER JOIN TAB3 C\n  ON C.COL = B.COL;\n\n[SQL 2]\nSELECT SUM(C.COL)\nFROM TAB1 A LEFT OUTER JOIN TAB2 B\n  ON A.COL = B.COL\nRIGHT OUTER JOIN TAB3 C\n  ON C.COL = B.COL AND B.COL <> 2;",
+ o:["4, 4","4, 6","6, 4","6, 6"],a:[4],
+ ex:"RIGHT OUTER JOIN은 오른쪽 TAB3의 모든 행을 남깁니다. 조건이 어디에 붙든 TAB3의 1, 2, 3은 각각 한 번씩 결과에 나오고, 두 SQL 모두 1 + 2 + 3 = 6입니다."},
+{n:29,s:2,q:"자기 자신보다 같거나 작은 값끼리 셀프 조인해 합계를 구한 결과를 묻는 문제",
+ o:[null,null,null,null],a:[],note:"테이블 값·보기·정답이 복원되지 않았어요. 정답을 알면 아래에서 직접 지정하세요."},
+{n:30,s:2,q:"SELECT SUM(COALESCE(COL1, COL2, COL3)) FROM T; 의 결과는?",
+ code:"COL1 | COL2 | COL3\n1    | 2    | 3\nNULL | 2    | 3\nNULL | NULL | 3",
+ o:["NULL","1","6","14"],a:[3],ex:"COALESCE는 왼쪽부터 처음 만나는 NULL이 아닌 값을 돌려주므로 행별로 1, 2, 3이 되고 합계는 6입니다."},
+{n:31,s:2,q:"두 테이블을 회원번호로 조인해 회원번호별 COUNT(*)와 SUM을 구하는 SQL에 대한 설명으로 옳은 것은? (회원번호 1001, 1003, 1005)",
+ code:"A 테이블: 회원번호, COL1, COL2\nB 테이블: TYPEB (1, 2, 3, 4, 5)\n\nCASE WHEN COL1 > COL2 THEN COL2 ELSE COL1 END  -- 둘 중 작은 값\n  >= B.TYPEB 인 행만 남겨 집계",
+ o:["회원번호 1003의 COUNT 값은 2다.","회원번호 1005의 SUM 값은 10이다.","(ㄴ) 조건이 없으면 결과가 21행이다.","(ㄱ)을 BETWEEN으로 바꿔도 결과가 같다."],a:[1],
+ ex:"④는 BETWEEN의 앞뒤 값 크기가 뒤바뀌는 행이 생겨 결과가 달라집니다.",note:"테이블 값은 복원되지 않았어요."},
+{n:32,s:2,q:"다음 SQL과 결과가 같은 것은?",code:"SELECT ... FROM A\nWHERE A.ID NOT IN (SELECT B.ID FROM B)",
+ o:["A EXCEPT B","INTERSECT를 쓴 SQL","UNION을 쓴 SQL","B EXCEPT A"],a:[1],
+ ex:"NOT IN 서브쿼리는 A에만 있고 B에는 없는 값을 남기므로 차집합 A EXCEPT(MINUS) B와 같습니다."},
+{n:33,s:2,q:"DELETE와 TRUNCATE에 대한 설명으로 옳지 않은 것은?",
+ o:["DELETE는 조건을 걸어 선택한 행만 삭제할 수 있다.","TRUNCATE는 ROLLBACK할 수 없다.","TRUNCATE가 DELETE보다 시스템 부하가 더 크다.","TRUNCATE는 DDL, DELETE는 DML이다."],a:[3],
+ ex:"DELETE는 행마다 로그를 남기며 지우므로 부하가 크고, TRUNCATE는 테이블을 통째로 비워 부하가 훨씬 적습니다."},
+{n:34,s:2,q:"다음 SQL의 결과로 옳은 것은?",
+ code:"점수: 200, 150, 50, 500\n\nSELECT CASE WHEN 점수 <= 300 THEN 'A'\n            WHEN 점수 <= 100 THEN 'B'\n            ELSE 'S' END\nFROM ...\nORDER BY 점수;",
+ o:[null,null,"A, A, A, S","B, A, A, S"],a:[3],
+ ex:"CASE는 위에서부터 처음 만족하는 조건 하나만 적용합니다. 50도 먼저 '점수 <= 300'을 만족하므로 A가 됩니다. 50(A), 150(A), 200(A), 500(S)."},
+{n:35,s:2,q:"서브쿼리를 쓴 SQL 가운데 오류가 나는 것은?",
+ o:["WHERE ... > (SELECT ... WHERE EMP_ID = 1170)","WHERE ... > (SELECT AVG(...) FROM ...)","WHERE ... > ALL (SELECT ...)","WHERE ... > (SELECT ... WHERE DEPT_ID = 10)"],a:[4],
+ ex:"단일행 비교 연산자(>)에는 서브쿼리 결과가 한 행만 와야 합니다. DEPT_ID = 10인 사원은 여러 명이라 ④만 오류가 납니다.",note:"보기 순서는 다를 수 있어요."},
+{n:36,s:2,q:"학생 이름과 성적이 주어졌을 때, 순위를 구하는 다음 SQL의 빈칸 (ㄱ), (ㄴ)에 알맞은 것은?",
+ code:"SELECT T1.이름,\n       (SELECT (ㄱ) FROM 성적 T2 WHERE (ㄴ)) AS 순위\nFROM 성적 T1;",
+ o:["(ㄱ) COUNT(*) - 1, (ㄴ) T1.성적 > T2.성적","(ㄱ) COUNT(*) - 1, (ㄴ) T1.성적 < T2.성적","(ㄱ) COUNT(*) + 1, (ㄴ) T1.성적 > T2.성적","(ㄱ) COUNT(*) + 1, (ㄴ) T1.성적 < T2.성적"],a:[4],
+ ex:"내 성적보다 높은 사람 수를 세서 1을 더하면 순위가 됩니다. T1 < T2인 행을 세고 COUNT(*) + 1."},
+{n:37,s:2,q:"다음 SQL의 결과는?",code:"A(ID): 1\nB(ID): 1\nC(ID): 1\n\nSELECT COUNT(*)\nFROM A LEFT JOIN B ON (A.ID = B.ID)\nLEFT JOIN C ON (B.ID = C.ID);",
+ o:["0","1","2","3"],a:[2],ex:"A와 B는 ID 1로 한 행이 매칭되고, 그 결과가 다시 C의 ID 1과 매칭되어 최종 1행입니다."},
+{n:38,s:2,q:"다음 테이블 정의(PRIMARY KEY와 CHECK 제약조건 포함, CHECK는 15, 20, 25 같은 값 제한)에 대한 설명으로 옳지 않은 것은?",
+ o:[null,null,"PRIMARY KEY 컬럼에는 NULL은 안 되지만 중복 값은 들어갈 수 있다.","CHECK 제약조건은 NULL 값이 들어와도 통과된다."],a:[3],
+ ex:"PRIMARY KEY는 NOT NULL과 UNIQUE를 함께 만족해야 하므로 중복 값도 들어갈 수 없습니다. CHECK 제약조건은 NULL이면 UNKNOWN이 되어 통과합니다."},
+{n:39,s:2,q:"급여가 일정 금액 이상인 사원의 급여를 10% 올리는 쿼리를 (가)~(다) 가운데 모두 고른 것은?",
+ code:"(가) UPDATE ... SET 급여 = 급여 * 1.1 WHERE 급여 >= ...\n(나) UPDATE ... SET 급여 = 급여 * 1.1\n     WHERE EMPNO IN (SELECT EMPNO ... WHERE 급여 >= ...)\n(다) ROWNUM이나 서브쿼리를 쓴 다른 UPDATE",
+ o:["(가), (나)","(가), (나), (다)",null,null],a:[1],ex:"(가)와 (나)는 같은 사원을 골라 급여를 올리지만 (다)는 대상이 달라집니다."},
+{n:40,s:2,q:"PARTITION BY로 그룹별 합계(예: 16, 6)를 구하는 윈도우 함수 SQL의 결과를 묻는 문제",
+ o:[null,null,null,null],a:[],note:"테이블 값·보기·정답이 복원되지 않았어요. 정답을 알면 아래에서 직접 지정하세요."},
+{n:41,s:2,q:"두 테이블을 NATURAL JOIN한 뒤 합계(SUM)를 구한 결과는? (한쪽은 10, 20, 30, 다른 쪽은 10, 20이 한 번 더 들어 있음)",
+ o:["오류 발생","60","90","225"],a:[1,3],d:true,
+ note:"정답이 ①(오류)인지 ③(90)인지 의견이 갈려요. NATURAL JOIN의 공통 컬럼 앞에는 테이블 별칭을 붙일 수 없어서, SELECT 절에서 별칭.공통컬럼으로 썼다면 오류가 납니다."},
+{n:42,s:2,q:"PARTITION BY로 세 그룹을 나눈 결과에서, 각 그룹 안의 값을 더하면 1이 되는 비율이 나왔다(예: 300 → 0.3, 200 → 0.2). 이 결과를 만든 함수는?",
+ o:["PERCENT_RANK","CUME_DIST","RATIO_TO_REPORT","NTILE(10)"],a:[3],
+ ex:"RATIO_TO_REPORT는 파티션 합계 대비 각 행 값의 비율을 구하므로 그룹별 합이 1이 됩니다."},
+{n:43,s:2,q:"다음 데이터에 아래 윈도우 함수를 적용한 결과로 옳은 것은?",
+ code:"C1 | C2\nA  | 1\nA  | 3\nA  | 5\nA  | 7\nB  | 2\nB  | 4\n\nSUM(C2) OVER (PARTITION BY C1 ORDER BY C2\n              RANGE BETWEEN 2 PRECEDING AND 2 FOLLOWING)",
+ o:["1, 4, 9, 16, 2, 6",null,"4, 9, 15, 12, 6, 6",null],a:[3],
+ ex:"RANGE는 현재 행 값 기준 ±2 범위의 값을 더합니다. A: 1→4, 3→9, 5→15, 7→12, B: 2→6, 4→6. ①은 처음부터 누적한 값입니다."},
+{n:44,s:2,q:"ROUND(TO_DATE('25-05-1998', 'DD-MM-YYYY'), 'MONTH')의 결과는?",
+ o:["01-01-1998","01-04-1998","01-05-1998","01-06-1998"],a:[4],
+ ex:"날짜를 MONTH 단위로 ROUND하면 16일부터는 다음 달 1일로 올립니다. 25일이므로 1998년 6월 1일.",note:"보기 순서는 다를 수 있어요."},
+{n:45,s:2,q:"다음 테이블(COL1 아이디, COL2 상급자, COL3 숫자)에 계층형 질의를 실행해 SUM(COL3)를 구할 때, 결과가 다른 하나는?",
+ o:["순방향으로 전개하는 SQL","역방향으로 전개하는 SQL","역방향으로 전개하는 SQL","역방향으로 전개하는 SQL"],a:[3],
+ ex:"WHERE 조건이나 CONNECT BY의 추가 조건 때문에 나머지 보기는 노드가 하나만 남아 같은 값(4)이 나오고, ③만 더 많은 노드가 남아 결과가 다릅니다.",note:"테이블 값과 보기 SQL은 복원되지 않았어요."},
+{n:46,s:2,q:"키에 대한 설명 (가)~(다) 가운데 옳은 것을 모두 고른 것은?",
+ code:"(가) 기본키는 유일성과 최소성을 가진다.\n(나) 특정 컬럼 조합의 값이 다른 행과 중복되지 않으면 후보키가 된다.\n(다) A, B가 복합 기본키이고 B가 다른 테이블을 참조하는 외래키일 때,\n     B는 NULL일 수 없다.",
+ o:["(가)","(나)","(가), (나), (다)","(가), (다)"],a:[4],
+ ex:"(나)는 최소성을 빠뜨려 후보키가 아니라 슈퍼키 설명입니다. (다)는 B가 기본키의 일부라 NULL이 될 수 없으므로 맞습니다."},
+{n:47,s:2,q:"다음 중 결과 행 수가 가장 많은 것은? (테이블 A, B는 각각 4행)",
+ o:["UNION ALL","SELECT ... FROM A * B;","CROSS JOIN 또는 IN 조건 두 개를 쓴 SQL","FULL OUTER JOIN"],a:[],d:true,
+ note:"②가 16행이라는 의견과 Oracle에서 문법 오류라는 의견이 갈려 정답이 정해지지 않았어요."},
+{n:48,s:2,q:"다음을 차례로 실행한 뒤 AVG 결과는?",
+ code:"INSERT (ID 1, 값 1)\nINSERT (ID 2, 값 2)\nSAVEPOINT S1\nUPDATE ID 1의 값을 4로\nDELETE ID 2\nROLLBACK TO S1\nINSERT (ID 3, 값 3)\nSELECT AVG(값)",
+ o:["3.5","1.5","2",null],a:[3],ex:"ROLLBACK TO S1은 SAVEPOINT 이후의 UPDATE·DELETE만 되돌리므로 값 1, 2가 남고 3이 들어가 평균은 2입니다."},
+{n:49,s:2,q:"계층형 질의에 대한 설명으로 옳지 않은 것은?",
+ o:["START WITH는 계층 전개의 시작 위치를 지정한다.","PRIOR는 계층 전개 방향을 지정한다.","NOCYCLE은 순환 구조가 생겨도 무한 반복하지 않게 한다.","ORDER SIBLINGS BY는 전체 결과를 정렬한다."],a:[4],
+ ex:"ORDER SIBLINGS BY는 계층 구조를 유지한 채 같은 부모를 가진 형제 노드끼리만 정렬합니다."},
+{n:50,s:2,q:"A는 CHAR(2), B는 CHAR(3), C는 VARCHAR(2), D는 VARCHAR(3) 타입이고, 네 컬럼 모두에 '1'을 넣었다. 비교 결과가 나머지와 다른 것은?",
+ o:["A = B","A = C","B = C","B = D"],a:[1],
+ ex:"CHAR끼리 비교하면 짧은 쪽에 공백을 채워 길이를 맞춘 뒤 비교하므로 같습니다(참). VARCHAR가 끼면 공백까지 그대로 비교하므로 다릅니다(거짓). ①만 참입니다."}
+];
+
+const NUM = ["①","②","③","④"];
+const LS = "sqld63-grader-v1";
+let st = {sel:{}, idk:{}, key:{}, submitted:false, peek:false};
+try { const raw = localStorage.getItem(LS); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch(e) {}
+function save(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {} }
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sel = n => st.sel[n] || [0,0,0,0];
+function keyOf(q){ const k = st.key[q.n]; return k ? {a:k, d:k.length !== 1, edited:true} : {a:q.a, d:!!q.d || q.a.length !== 1, edited:false}; }
+
+// classify: "ok" | "amb" | "bad"
+function grade(q){
+  const s = sel(q.n), k = keyOf(q);
+  const picked = [1,2,3,4].filter(i => s[i-1] > 0);
+  if (st.idk[q.n] || picked.length === 0) return {r:"amb", why: st.idk[q.n] ? "기억 안 남" : "미표시"};
+  if (k.a.length === 0) return {r:"amb", why:"정답 미확정"};
+  const hit = picked.filter(i => k.a.includes(i));
+  if (hit.length === 0) return {r:"bad", why:"정답을 고르지 않음"};
+  if (k.d) return {r:"amb", why:"정답 의견 갈림"};
+  const solid = picked.filter(i => s[i-1] === 2);
+  if (picked.length === 1 && solid.length === 1) return {r:"ok", why:"확실히 맞음"};
+  return {r:"amb", why: picked.length > 1 ? "여러 개 표시" : "점선(애매)"};
+}
+
+const list = document.getElementById("list"), grid = document.getElementById("grid");
+
+function render(){
+  // number grid
+  grid.innerHTML = Q.map(q => {
+    let c = "";
+    const marked = st.idk[q.n] || sel(q.n).some(v => v);
+    if (st.submitted) c = "r-" + grade(q).r; else if (marked) c = "marked";
+    return `<a href="#q${q.n}" class="${c}">${q.n}</a>`;
+  }).join("");
+
+  const show = st.submitted || st.peek;
+  let html = "", lastS = 0;
+  for (const q of Q) {
+    if (q.s !== lastS) { lastS = q.s; html += `<div class="subj">${q.s === 1 ? "1과목 · 데이터 모델링의 이해" : "2과목 · SQL 기본과 활용"}</div>`; }
+    const s = sel(q.n), k = keyOf(q), g = st.submitted ? grade(q) : null;
+    const badge = g ? `<span class="badge ${g.r}">${{ok:"확실",amb:"애매",bad:"틀림"}[g.r]} · ${g.why}</span>` : "";
+    const opts = q.o.map((t, i) => {
+      const v = s[i];
+      const mark = show && k.a.includes(i+1) ? (k.d ? " cand" : " key") : "";
+      return `<button type="button" class="opt s${v}${mark}" data-n="${q.n}" data-i="${i}" aria-pressed="${v ? (v === 2 ? "true" : "mixed") : "false"}">
+        <span class="box">${v ? "✓" : ""}</span><span class="num">${NUM[i]}</span>
+        <span class="txt${t ? "" : " missing"}">${t ? esc(t) : "(보기 복원 안 됨)"}</span></button>`;
+    }).join("");
+    const idk = st.idk[q.n];
+    const idkBtn = `<button type="button" class="opt idk s${idk ? 2 : 0}" data-n="${q.n}" data-i="idk" aria-pressed="${!!idk}">
+        <span class="box">${idk ? "✓" : ""}</span><span class="num">⑤</span><span class="txt">기억 안 남</span></button>`;
+    let ans = "";
+    if (show) {
+      const keyTxt = k.a.length ? k.a.map(i => NUM[i-1]).join(" 또는 ") : "미확정";
+      ans = `<div class="ans">
+        <div class="k">정답: ${keyTxt}${k.d && k.a.length ? " (의견 갈림)" : ""}${k.edited ? " · 직접 지정함" : ""}</div>
+        ${q.ex ? `<div class="ex">${esc(q.ex)}</div>` : ""}
+        ${q.note ? `<div class="note">${esc(q.note)}</div>` : ""}
+        <div class="keyedit">정답 직접 지정:
+          ${[1,2,3,4].map(i => `<button type="button" class="${k.a.includes(i) ? "on" : ""}" data-key="${q.n}" data-i="${i}">${NUM[i-1]}</button>`).join("")}
+          ${k.edited ? `<button type="button" data-keyreset="${q.n}">원래대로</button>` : ""}
+        </div></div>`;
+    }
+    html += `<article class="q${g ? " r-" + g.r : ""}" id="q${q.n}">
+      <div class="qh"><span class="qn">${String(q.n).padStart(2,"0")}</span><span class="qt">${esc(q.q)}</span>${badge}</div>
+      ${q.code ? `<pre>${esc(q.code)}</pre>` : ""}
+      <div class="opts">${opts}${idkBtn}</div>${ans}</article>`;
+  }
+  list.innerHTML = html;
+
+  const done = Q.filter(q => st.idk[q.n] || sel(q.n).some(v => v)).length;
+  document.getElementById("prog").textContent = `${done} / 50 표시`;
+  document.getElementById("peek").checked = st.peek;
+  document.getElementById("submit").textContent = st.submitted ? "결과 보기" : "제출하고 채점";
+  renderResult();
+}
+
+function renderResult(){
+  const box = document.getElementById("result");
+  if (!st.submitted) { box.hidden = true; return; }
+  box.hidden = false;
+  const c = {ok:[0,0], amb:[0,0], bad:[0,0]}, idkCnt = [0,0];
+  for (const q of Q) { const g = grade(q); c[g.r][q.s-1]++; if (g.why === "기억 안 남" || g.why === "미표시") idkCnt[q.s-1]++; }
+  const P = 2, tot = a => a[0] + a[1];
+  const cell = (cnt) => `<b>${cnt*P}</b><small>${cnt}문항</small>`;
+  const row = (cls, name, arr) => `<tr class="${cls}"><td>${name}</td><td>${cell(arr[0])}</td><td>${cell(arr[1])}</td><td>${cell(tot(arr))}</td></tr>`;
+  const min = [c.ok[0]*P, c.ok[1]*P], max = [(c.ok[0]+c.amb[0])*P, (c.ok[1]+c.amb[1])*P];
+  const minT = min[0]+min[1], maxT = max[0]+max[1];
+  // pass rule: total >= 60, each subject >= 40% (1과목 8/20, 2과목 32/80)
+  const sure = minT >= 60 && min[0] >= 8 && min[1] >= 32;
+  const possible = maxT >= 60 && max[0] >= 8 && max[1] >= 32;
+  const verdict = sure ? `<span class="pass y">확실한 점수만으로 합격선 통과</span>`
+    : possible ? `<span class="pass m">애매한 문항 결과에 따라 합격 가능</span>`
+    : `<span class="pass n">애매한 문항을 다 맞혀도 합격선 미달</span>`;
+  const fail1 = max[0] < 8 ? " · 1과목 과락" : min[0] < 8 ? " · 1과목 과락 위험" : "";
+  const fail2 = max[1] < 32 ? " · 2과목 과락" : min[1] < 32 ? " · 2과목 과락 위험" : "";
+  box.innerHTML = `<h2>예상 점수</h2>
+    <div class="range">
+      <div class="tile"><div class="l">최소 (확실한 점수만)</div><div class="v">${minT}점</div><div class="s">1과목 ${min[0]} · 2과목 ${min[1]}</div></div>
+      <div class="tile"><div class="l">최대 (애매한 문항 모두 정답)</div><div class="v">${maxT}점</div><div class="s">1과목 ${max[0]} · 2과목 ${max[1]}</div></div>
+    </div>
+    <div>${verdict}${fail1}${fail2}</div>
+    <div class="tw"><table>
+      <thead><tr><th></th><th>1과목 (20점)</th><th>2과목 (80점)</th><th>총합 (100점)</th></tr></thead>
+      <tbody>
+        ${row("ok","확실한 점수", c.ok)}
+        ${row("amb","애매한 점수", c.amb)}
+        ${row("bad","확실히 틀린 점수", c.bad)}
+      </tbody></table></div>
+    <p class="foot">애매한 점수에는 점선 표시, 여러 개 표시, 정답 의견이 갈리거나 미확정인 문항, 그리고 기억 안 남·미표시 문항(1과목 ${idkCnt[0]}개, 2과목 ${idkCnt[1]}개)이 들어가요. 합격 기준: 총점 60점 이상, 과목별 40% 이상(1과목 8점, 2과목 32점). 문항별 '정답 직접 지정'으로 정답을 바꾸면 점수가 바로 다시 계산돼요.</p>
+    <div><button type="button" id="edit">답 다시 고치기</button></div>`;
+}
+
+list.addEventListener("click", e => {
+  const kb = e.target.closest("[data-key]");
+  if (kb) {
+    const n = +kb.dataset.key, i = +kb.dataset.i, q = Q[n-1];
+    const cur = (st.key[n] || q.a).slice();
+    const j = cur.indexOf(i); j >= 0 ? cur.splice(j,1) : cur.push(i);
+    cur.sort(); st.key[n] = cur; save(); render(); return;
+  }
+  const kr = e.target.closest("[data-keyreset]");
+  if (kr) { delete st.key[kr.dataset.keyreset]; save(); render(); return; }
+  const b = e.target.closest(".opt"); if (!b) return;
+  const n = +b.dataset.n;
+  if (b.dataset.i === "idk") {
+    st.idk[n] = !st.idk[n];
+    if (st.idk[n]) st.sel[n] = [0,0,0,0];
+  } else {
+    const s = sel(n).slice(), i = +b.dataset.i;
+    s[i] = (s[i] + 1) % 3; st.sel[n] = s;
+    if (s[i]) st.idk[n] = false;
+  }
+  save(); render();
+  const again = document.querySelector(`[data-n="${n}"][data-i="${b.dataset.i}"]`); if (again) again.focus({preventScroll:true});
+});
+
+document.getElementById("peek").addEventListener("change", e => { st.peek = e.target.checked; save(); render(); });
+document.getElementById("submit").addEventListener("click", () => {
+  st.submitted = true; save(); render();
+  document.getElementById("result").scrollIntoView({behavior:"smooth", block:"start"});
+});
+document.getElementById("result").addEventListener("click", e => {
+  if (e.target.id === "edit") { st.submitted = false; save(); render(); document.getElementById("q1").scrollIntoView({behavior:"smooth"}); }
+});
+const resetWrap = document.getElementById("resetWrap");
+resetWrap.addEventListener("click", e => {
+  if (e.target.id === "reset") {
+    resetWrap.innerHTML = `<span class="confirm">표시를 모두 지울까요? <button type="button" id="resetYes">지우기</button><button type="button" class="ghost" id="resetNo">취소</button></span>`;
+  } else if (e.target.id === "resetYes") {
+    st = {sel:{}, idk:{}, key:st.key, submitted:false, peek:st.peek}; save(); render();
+    resetWrap.innerHTML = `<button class="ghost" id="reset" type="button">초기화</button>`;
+  } else if (e.target.id === "resetNo") {
+    resetWrap.innerHTML = `<button class="ghost" id="reset" type="button">초기화</button>`;
+  }
+});
+render();
+</script>
