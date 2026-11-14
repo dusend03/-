@@ -98,6 +98,8 @@ th{font-size:.8rem;color:var(--muted);font-weight:600}
 td b{font-size:1.05rem}
 td small{color:var(--muted);display:block;font-size:.75rem}
 tr.ok td:first-child{color:var(--ok);font-weight:600} tr.amb td:first-child{color:var(--amb);font-weight:600} tr.bad td:first-child{color:var(--bad);font-weight:600}
+tr.sub td{font-size:.88rem;padding-top:6px;padding-bottom:6px} tr.sub td b{font-size:.92rem;font-weight:600} tr.sub td:first-child{padding-left:18px;color:var(--muted)}
+.sync{font-size:.8rem;color:var(--muted)} .sync.on{color:var(--ok)}
 .pass{font-weight:600} .pass.y{color:var(--ok)} .pass.n{color:var(--bad)} .pass.m{color:var(--amb)}
 .foot{color:var(--muted);font-size:.8rem}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.9rem}
@@ -112,7 +114,7 @@ tr.ok td:first-child{color:var(--ok);font-weight:600} tr.amb td:first-child{colo
   </header>
 
   <div class="bar" id="bar">
-    <span class="prog" id="prog">0 / 50 표시</span>
+    <span class="prog" id="prog">0 / 50 표시 <span class="sync" id="sync">불러오는 중…</span></span>
     <label for="peek"><input type="checkbox" id="peek"> 정답 미리 보기</label>
     <span id="resetWrap"><button class="ghost" id="reset" type="button">초기화</button></span>
     <button class="primary" id="submit" type="button">제출하고 채점</button>
@@ -131,7 +133,7 @@ tr.ok td:first-child{color:var(--ok);font-weight:600} tr.amb td:first-child{colo
 
   <main id="list" style="display:flex;flex-direction:column;gap:14px"></main>
 
-  <p class="foot">표시한 답과 정답 수정 내용은 이 브라우저에만 저장돼요.</p>
+  <p class="foot">표시한 답과 정답 수정 내용은 이 브라우저와, 로그인한 경우 이 페이지의 비공개 저장소(소유자·편집자만 볼 수 있음)에 저장돼요. 원본: sqldpass.com 가채점 게시판, 2026-11-14 갱신 내용 반영.</p>
 </div>
 
 <script>
@@ -141,8 +143,9 @@ const Q = [
  o:["데이터 관점","프로세스 관점","상관 관점","유연성 관점"],a:[1],
  ex:"데이터 관점(What)은 업무와 데이터, 데이터와 데이터 사이의 관계를 봅니다. 프로세스 관점(How)은 업무가 실제로 하는 일을, 상관 관점(Interaction)은 업무 처리 방법에 따라 데이터가 받는 영향을 봅니다."},
 {n:2,s:1,q:"물리적 데이터 모델링에 대한 설명으로 옳지 않은 것은?",
- o:["물리적 데이터 모델링의 핵심은 누가 어떻게 데이터에 접근하는지를 기록하는 것이다.","데이터를 저장하는 구조(내부 스키마)가 물리적 스키마다.","테이블, 칼럼 등이 물리적인 저장장치에 어떻게 기록되는지를 정의한다.","계층 ... 인 경우 시간이 가장 많이 소요된다."],a:[1,4],d:true,
- note:"정답이 ①인지 ④인지 의견이 팽팽해요. ①은 접근 기록이 물리 모델링의 '핵심'은 아니라는 쪽, ④는 시간이 가장 많이 드는 단계가 아니라는 쪽 근거예요."},
+ o:["물리적 데이터 모델링의 핵심은 누가 어떻게 데이터에 접근하는지를 기록하는 것이다.","데이터를 저장하는 구조(내부 스키마)가 물리적 스키마다.","테이블, 칼럼 등이 물리적인 저장장치에 어떻게 기록되는지를 정의한다.","계층형 데이터베이스인 경우 물리적 데이터 모델링에 시간을 가장 많이 투자해야 한다."],a:[4],
+ ex:"데이터 모델링에서 시간을 가장 많이 들이는 단계는 업무를 분석하는 개념적·논리적 모델링이고, 물리적 모델링이 아닙니다.",
+ note:"①이 정답이라는 의견도 있어요."},
 {n:3,s:1,q:"업무상 존재하는 데이터로서 처음부터 생성되어 다른 엔터티에 의존하지 않고 독립적으로 존재할 수 있으며, 다른 엔터티의 부모 역할을 하는 엔터티는?",
  o:["유형 엔터티","개념 엔터티","기본 엔터티","사건 엔터티"],a:[3],
  ex:"기본 엔터티(키 엔터티)는 다른 엔터티로부터 주식별자를 상속받지 않고 자신의 고유한 주식별자를 가지며, 다른 엔터티의 부모가 됩니다. 개념·유형·사건 엔터티는 유무형에 따른 분류이고, 기본 엔터티는 발생 시점에 따른 분류입니다."},
@@ -170,33 +173,34 @@ const Q = [
  ex:"인조식별자는 업무와 무관하게 시스템이 만들어 붙이는 식별자입니다. 모든 컬럼 값을 결합한 것은 인조식별자가 아니라 본질식별자를 합친 복합 식별자에 가깝습니다."},
 // ---------- 2과목 ----------
 {n:11,s:2,q:"SQL 명령어와 종류가 잘못 짝지어진 것은?",
- o:["INSERT - DCL","UPDATE - DML","DROP - DDL (또는 GRANT - DCL)","COMMIT - TCL"],a:[1],
- ex:"INSERT는 데이터를 조작하는 DML입니다. UPDATE는 DML, DROP은 DDL, GRANT는 DCL, COMMIT은 TCL로 모두 맞게 짝지어져 있습니다."},
+ o:["INSERT - DCL","UPDATE - DML","DROP - DDL","COMMIT - TCL"],a:[1],
+ ex:"INSERT는 데이터를 조작하는 DML입니다. UPDATE는 DML, DROP은 DDL, COMMIT은 TCL로 맞게 짝지어져 있습니다."},
 {n:12,s:2,q:"다음 SQL 가운데 오류가 나는 것은? (U1 사용자의 T1 테이블, C1 컬럼)",
  o:["SELECT C1 FROM T1 a;","SELECT T1.C1 FROM U1.T1;","SELECT T1.C1 FROM U1.T1 a;","SELECT U1.T1.C1 FROM U1.T1;"],a:[3],
  ex:"FROM 절에서 테이블 별칭(a)을 지정하면 SELECT 절에서는 원래 테이블명(T1)으로 컬럼을 참조할 수 없고 별칭으로 써야 합니다.",note:"보기 순서는 다를 수 있어요."},
 {n:13,s:2,q:"EMP 테이블에서 다음 조건으로 조회한 결과로 옳은 것은?",code:"WHERE JOB = 'CLERK' OR ENAME LIKE 'K%' AND SAL >= 3000",
- o:["KING 1행","JOB이 CLERK인 사원 4명과 KING, 총 5행","CLERK·KING이 아닌 다른 JOB의 행이 섞인 결과","조건과 무관하게 섞인 4행"],a:[2],
- ex:"AND가 OR보다 먼저 계산되어 조건은 JOB = 'CLERK' OR (ENAME LIKE 'K%' AND SAL >= 3000)이 됩니다. 급여와 관계없이 CLERK 4명이 모두 나오고, K로 시작하면서 급여가 3000 이상인 KING이 더해져 5행입니다."},
+ o:["KING 1행","SMITH, JAMES 등 JOB이 CLERK인 사원 4명과 KING, 총 5행","CLERK·KING이 아닌 다른 JOB의 행이 섞인 결과","조건과 무관하게 섞인 4행"],a:[2],
+ ex:"AND가 OR보다 먼저 계산되어 조건은 JOB = 'CLERK' OR (ENAME LIKE 'K%' AND SAL >= 3000)이 됩니다. 급여와 관계없이 CLERK 4명이 모두 나오고, K로 시작하면서 급여가 3000 이상인 KING이 더해져 5행입니다.",note:"테이블의 JOB 값이 CLERK가 아니어서 ①이 정답이라는 의견도 있어요."},
 {n:14,s:2,q:"다음 연산자를 우선순위가 높은 것부터 순서대로 나열한 것은?",code:"ㄱ. AND, OR\nㄴ. NOT\nㄷ. 괄호 ( )\nㄹ. 비교 연산자",
- o:[null,"ㄴ → ㄷ → ㄹ → ㄱ","ㄷ → ㄱ → ㄹ → ㄴ","ㄷ → ㄴ → ㄹ → ㄱ"],a:[4],
+ o:["ㄱ → ㄴ → ㄷ → ㄹ","ㄴ → ㄷ → ㄹ → ㄱ","ㄷ → ㄱ → ㄹ → ㄴ","ㄷ → ㄴ → ㄹ → ㄱ"],a:[4],
  ex:"SQLD 가이드 기준 연산자 우선순위는 괄호 → NOT → 비교 연산자 → AND → OR 순입니다."},
-{n:15,s:2,q:"CEIL(35.08)의 결과는?",o:["오류","35.1","35.08","36"],a:[4],
- ex:"CEIL은 주어진 수보다 크거나 같은 가장 작은 정수를 돌려주므로 36입니다."},
+{n:15,s:2,q:"CEIL(35.08)의 결과는?",o:["35","35.1","35.08","36"],a:[4],
+ ex:"CEIL은 주어진 수보다 크거나 같은 가장 작은 정수를 돌려주므로 36입니다. 35는 FLOOR나 TRUNC의 결과입니다."},
 {n:16,s:2,q:"T1, T2 테이블이 다음과 같을 때 SQL의 결과는?",code:"T1(C1): 1, 2, 3, 4, 5\nT2(C1): 1, 2, 3\n\nSELECT COUNT(*)\nFROM T1 CROSS JOIN T2\nWHERE T1.C1 <> T2.C1;",
  o:["6","8","12","15"],a:[3],ex:"CROSS JOIN 결과는 5 × 3 = 15행이고, 이 중 값이 같은 (1,1), (2,2), (3,3) 세 행을 빼면 12행입니다."},
-{n:17,s:2,q:"WHERE (C1, C2) IN ((1, 2), (1, 3))과 결과가 같은 것은?",
- o:["WHERE C1 IN (1, 2) AND C2 IN (2, 3)","WHERE C1 IN (1, 2) OR C2 IN (2, 3)","WHERE (C1 = 1 OR C2 = 2) AND (C1 = 1 OR C2 = 3)","WHERE C1 = 1 AND (C2 = 2 OR C2 = 3)"],a:[4],
- ex:"다중 컬럼 IN은 (C1, C2) 쌍이 (1, 2) 또는 (1, 3)과 정확히 일치하는 행만 고릅니다. 즉 C1 = 1이면서 C2가 2 또는 3인 행입니다."},
-{n:18,s:2,q:"이름에 밑줄(_) 문자가 들어간 행만 조회하는 조건으로 옳은 것은?",
- o:["LIKE '%_%'","LIKE '%\\_%'","LIKE '%@_%' ESCAPE '@'","LIKE '%_%' ESCAPE '_'"],a:[3],
- ex:"LIKE에서 _는 임의의 한 글자를 뜻하는 와일드카드라, 문자 그대로의 _를 찾으려면 ESCAPE로 지정한 문자(@)를 _ 앞에 붙여야 합니다. ②는 ESCAPE 절이 없어 \\가 이스케이프 문자로 동작하지 않습니다."},
+{n:17,s:2,q:"WHERE (C1, C2) IN ((1, 3), (1, 4))과 결과가 같은 것은?",
+ o:["WHERE C1 IN (1, 3) AND C2 IN (3, 4)","WHERE C1 IN (1, 3) OR C2 IN (3, 4)","WHERE (C1 = 1 OR C2 = 3) AND (C1 = 1 OR C2 = 4)","WHERE C1 = 1 AND (C2 = 3 OR C2 = 4)"],a:[4],
+ ex:"다중 컬럼 IN은 (C1, C2) 쌍이 (1, 3) 또는 (1, 4)와 정확히 일치하는 행만 고릅니다. 즉 C1 = 1이면서 C2가 3 또는 4인 행입니다. ①·②는 다른 C1 값까지, ③은 C1 = 1인 모든 행까지 포함됩니다.",note:"보기 값은 다를 수 있어요."},
+{n:18,s:2,q:"ID에 밑줄(_) 문자가 들어간 행(예: CLK_98, BL_22)만 조회하는 조건으로 옳은 것은?",
+ o:["LIKE '%_%'","LIKE '%\\_%'","LIKE '%@_%' ESCAPE '@'","ESCAPE '_'를 쓴 조건"],a:[3,4],d:true,
+ ex:"LIKE에서 _는 임의의 한 글자라, 문자 그대로의 _를 찾으려면 ESCAPE로 지정한 문자를 _ 바로 앞에 붙여야 합니다.",
+ note:"정답이 ③인지 ④인지 의견이 갈려요. ④가 '%__%' ESCAPE '_'처럼 밑줄 두 개였다면 맞는 조건이고, '%_%' ESCAPE '_'라면 밑줄을 찾지 못합니다. ③도 '%@_%'인지 '%@%'인지에 따라 달라져요."},
 {n:19,s:2,q:"다음 정규식으로 이메일 형식을 검사할 때, 형식에 맞지 않는 값은?",code:"\\w+@\\w+(\\.\\w+)+",
- o:[null,"ab_cd@... 처럼 @ 앞에 밑줄(_)이 들어간 값","atHOME@... 처럼 @ 뒤에 점(.) 없이 끝나는 값","admin@....... 처럼 점이 여러 번 들어간 값"],a:[3],
+ o:["평범한 형태의 이메일 주소","ab_cd@google.ac.kr","abs@abs","admin34@df.co.kr"],a:[3],
  ex:"@ 뒤에 '.문자' 묶음이 한 번 이상 와야 하는데, ③은 점 없이 끝나 패턴에 맞지 않습니다. \\w는 밑줄(_)도 포함하므로 ②는 맞는 형식입니다."},
 {n:20,s:2,q:"(Oracle) NVL(MAX(컬럼), 0) + 1과 결과가 같은 것은?",
- o:["COALESCE(MAX(컬럼) + 1, 1)","NULLIF(MAX(컬럼) ..., ...)를 쓴 식","NULLIF(MAX(컬럼), ...) + 1","CASE WHEN MAX(컬럼) = NULL THEN 1 ELSE MAX(컬럼) + 1 END"],a:[1],
- ex:"①은 MAX가 NULL이면 1, 아니면 MAX + 1을 돌려주어 NVL(MAX, 0) + 1과 같습니다. ④는 = NULL 비교가 참이 되지 않아 MAX가 NULL일 때 NULL이 됩니다.",note:"④가 IS NULL이었다는 기억도 있어요."},
+ o:["COALESCE(MAX(컬럼) + 1, 1)","NULLIF(MAX(컬럼), NULL)을 쓴 식","NULLIF(MAX(컬럼), NULL) + 1","CASE WHEN MAX(컬럼) = NULL THEN 1 ELSE MAX(컬럼) + 1 END"],a:[1],
+ ex:"①은 MAX가 NULL이면 1, 아니면 MAX + 1을 돌려주어 NVL(MAX, 0) + 1과 같습니다. NULLIF(MAX, NULL)은 MAX가 NULL이면 NULL을 그대로 돌려주므로 ②·③은 NULL이 나옵니다. ④는 = NULL 비교가 참이 되지 않아 ELSE로 가서 역시 NULL이 됩니다."},
 {n:21,s:2,q:"부양가족이 한 명도 없는 직원을 조회하는 SQL로 옳은 것은?",
  o:["WHERE EXISTS (... 사원번호 = 부양가족의 사원번호)","WHERE EXISTS (... 사원번호 <> 부양가족의 사원번호)","WHERE NOT EXISTS (... 사원번호 = 부양가족의 사원번호)","WHERE NOT EXISTS (... 사원번호 <> 부양가족의 사원번호)"],a:[3],
  ex:"자기 사원번호와 같은 부양가족 행이 하나도 없는 직원을 골라야 하므로 NOT EXISTS와 = 조건을 함께 씁니다."},
@@ -204,22 +208,24 @@ const Q = [
  code:"[원본]\n그룹 | MONTH | AMT\na    | JAN   | 100\na    | FEB   | 150\na    | MAR   | 200\nb    | JAN   | 150\nb    | FEB   | 200\nb    | MAR   | 250\n\n[결과]\n그룹 | JAN | FEB | MAR\na    | 100 | 150 | 200\nb    | 150 | 200 | 250",
  o:["FROM 절 인라인 뷰에서 그룹·MONTH·AMT 세 컬럼을 고른 뒤 PIVOT (SUM(AMT) FOR MONTH IN (...))","UNPIVOT을 쓴 SQL","UNPIVOT을 쓴 SQL","FROM 절 인라인 뷰에서 컬럼 하나만 고른 뒤 PIVOT (SUM(AMT) FOR MONTH IN (...))"],a:[1],
  ex:"PIVOT은 인라인 뷰에 남은 컬럼 가운데 집계 대상(AMT)과 FOR 절 컬럼(MONTH)을 뺀 나머지(그룹)로 묶습니다. 행을 열로 바꾸는 문제라 UNPIVOT은 맞지 않습니다."},
-{n:23,s:2,q:"다음 SQL의 결과는?",code:"SELECT ID FROM T\nGROUP BY ID\nHAVING COUNT(*) = 2\nORDER BY (CASE WHEN ID = 999 THEN 0 ELSE ID END);",
+{n:23,s:2,q:"다음 SQL의 결과는?",code:"[T] ID: 100, 100, 200, 200, 200, 999, 999\n\nSELECT ID FROM T\nGROUP BY ID\nHAVING COUNT(*) = 2\nORDER BY (CASE WHEN ID = 999 THEN 0 ELSE ID END);",
  o:["100, 999","999, 100","100, 200, 999","999, 200, 100"],a:[2],
- ex:"두 번 나온 ID만 남기고, 정렬 기준에서 999는 0으로 바뀌어 맨 앞에 옵니다.",note:"테이블 값은 복원되지 않았어요."},
-{n:24,s:2,q:"다음 테이블에서 부서 a의 MAX(SAL)과 부서 b의 MIN(SAL)을 UNION으로 합친 결과를 묻는 문제",
- code:"사원 | 부서 | SAL\n1    | a    | 2975\n2    | a    | 2500\n3    | a    | ...\n4    | b    | 3000\n5    | b    | 3000",
- o:["8425","11625","6000",null],a:[1],note:"테이블 값과 정확한 SQL은 복원되지 않았어요."},
-{n:25,s:2,q:"고객별 주문금액 합계(SUM)가 등급의 최소~최대 금액 사이(BETWEEN)에 드는 등급을 구한 결과는?",
- o:["VVIP, VIP","VIP, GOLD","결과 없음(공집합)","VVIP, VIP, GOLD, SILVER"],a:[1,3],d:true,
- note:"①이 다수 의견이지만 ③이 정답이라는 의견도 있어요. 테이블 값은 복원되지 않았어요."},
-{n:26,s:2,q:"(Oracle) NULL이 들어 있는 컬럼을 정렬할 때, 정렬 결과가 나머지와 다른 SQL은?",
- o:["ORDER BY 컬럼","ORDER BY NVL(컬럼, 0)","ORDER BY 컬럼 NULLS LAST","ORDER BY 3 (같은 컬럼의 위치 번호)"],a:[2],
+ ex:"200은 3번 나와 HAVING에서 빠지고 100과 999만 남습니다. 정렬 기준에서 999는 0으로 바뀌어 맨 앞에 오므로 999, 100 순입니다."},
+{n:24,s:2,q:"직무별 급여의 MAX와 MIN을 각각 구해 UNION으로 합친 뒤 그 합계를 구한 결과는?",
+ code:"직무 | SAL\nT    | 2975\nT    | (2800대 값)\nT    | 2450\nV    | 3000\nV    | 3000",
+ o:["8425","11425","6000",null],a:[1],
+ ex:"직무별 MAX·MIN은 T가 2975와 2450, V가 3000과 3000입니다. UNION은 중복을 제거하므로 3000은 한 번만 남아 2975 + 2450 + 3000 = 8425입니다. UNION ALL이었다면 11425가 됩니다."},
+{n:25,s:2,q:"고객별 주문금액 합계(SUM)가 등급 테이블의 최소~최대 금액 사이(BETWEEN)에 드는 등급을 구한 결과는?",
+ code:"[주문 합계] 고객 1: 2,100,000 / 고객 2: 600,000\n[등급] VVIP 1,000,001~10,000,000 / VIP 100,001~1,000,000\n       GOLD 10,001~100,000 / SILVER 0~10,000",
+ o:["VVIP, VIP","VIP, GOLD","결과 없음(공집합)","VVIP, VIP, GOLD, SILVER"],a:[1],
+ ex:"고객 1의 합계 2,100,000은 VVIP 구간, 고객 2의 600,000은 VIP 구간에 들어갑니다."},
+{n:26,s:2,q:"(Oracle) 주문 테이블에서 마지막 컬럼(최고금액)에 NULL이 있을 때, 정렬 결과가 나머지와 다른 SQL은?",
+ o:["ORDER BY 주문번호, 최고금액","ORDER BY 주문번호, NVL(최고금액, 0)","ORDER BY 주문번호, 최고금액 NULLS LAST","ORDER BY 주문번호, 3"],a:[2],
  ex:"Oracle은 오름차순 정렬에서 NULL을 맨 뒤에 둡니다. ①·③·④는 모두 NULL이 마지막에 오지만, ②는 NULL을 0으로 바꿔 정렬하므로 NULL 행이 앞쪽으로 옵니다."},
-{n:27,s:2,q:"ROWNUM으로 가장 높은 값 한 행을 뽑는 SQL 가운데 결과가 다른 것은?",
- o:[null,null,"ROWNUM = 1을 먼저 뽑은 뒤 바깥에서 ORDER BY 한 SQL",null],a:[3],d:true,
- ex:"ROWNUM은 정렬 전에 붙으므로, 인라인 뷰 안에서 먼저 정렬하지 않으면 원하는 최댓값이 아닌 임의의 첫 행이 나옵니다.",
- note:"이 보기가 정답이라는 건 맞지만, 실제 시험에서 몇 번 위치였는지는 확인되지 않았어요."},
+{n:27,s:2,q:"사원별 매출액 합계가 가장 높은 사원 한 명과 그 합계를 조회하는 SQL로 옳은 것은?",
+ o:["인라인 뷰에서 사원별로 GROUP BY·SUM 하고 합계 내림차순으로 정렬한 뒤, 바깥에서 WHERE ROWNUM <= 1","WHERE ROWNUM <= 1 을 먼저 걸고 ORDER BY 매출액 DESC 한 SQL","GROUP BY는 했지만 정렬 없이 WHERE ROWNUM <= 1 한 SQL",null],a:[1],
+ ex:"ROWNUM은 ORDER BY보다 먼저 붙으므로, 정렬을 마친 결과를 인라인 뷰로 감싼 뒤 ROWNUM으로 잘라야 가장 높은 값을 얻습니다. ②·③은 정렬 전에 첫 행을 가져옵니다.",
+ note:"원본 사이트에서 발문과 보기가 새로 복원되면서 정답 위치가 ③에서 ①로 바뀌었어요."},
 {n:28,s:2,q:"다음 두 SQL의 결과를 차례로 나열한 것은?",
  code:"TAB1(COL): 1, 2, 3\nTAB2(COL): 1, 2, 4\nTAB3(COL): 1, 2, 3\n\n[SQL 1]\nSELECT SUM(C.COL)\nFROM TAB1 A LEFT OUTER JOIN TAB2 B\n  ON A.COL = B.COL AND B.COL <> 2\nRIGHT OUTER JOIN TAB3 C\n  ON C.COL = B.COL;\n\n[SQL 2]\nSELECT SUM(C.COL)\nFROM TAB1 A LEFT OUTER JOIN TAB2 B\n  ON A.COL = B.COL\nRIGHT OUTER JOIN TAB3 C\n  ON C.COL = B.COL AND B.COL <> 2;",
  o:["4, 4","4, 6","6, 4","6, 6"],a:[4],
@@ -229,10 +235,11 @@ const Q = [
 {n:30,s:2,q:"SELECT SUM(COALESCE(COL1, COL2, COL3)) FROM T; 의 결과는?",
  code:"COL1 | COL2 | COL3\n1    | 2    | 3\nNULL | 2    | 3\nNULL | NULL | 3",
  o:["NULL","1","6","14"],a:[3],ex:"COALESCE는 왼쪽부터 처음 만나는 NULL이 아닌 값을 돌려주므로 행별로 1, 2, 3이 되고 합계는 6입니다."},
-{n:31,s:2,q:"두 테이블을 회원번호로 조인해 회원번호별 COUNT(*)와 SUM을 구하는 SQL에 대한 설명으로 옳은 것은? (회원번호 1001, 1003, 1005)",
- code:"A 테이블: 회원번호, COL1, COL2\nB 테이블: TYPEB (1, 2, 3, 4, 5)\n\nCASE WHEN COL1 > COL2 THEN COL2 ELSE COL1 END  -- 둘 중 작은 값\n  >= B.TYPEB 인 행만 남겨 집계",
- o:["회원번호 1003의 COUNT 값은 2다.","회원번호 1005의 SUM 값은 10이다.","(ㄴ) 조건이 없으면 결과가 21행이다.","(ㄱ)을 BETWEEN으로 바꿔도 결과가 같다."],a:[1],
- ex:"④는 BETWEEN의 앞뒤 값 크기가 뒤바뀌는 행이 생겨 결과가 달라집니다.",note:"테이블 값은 복원되지 않았어요."},
+{n:31,s:2,q:"두 테이블을 회원번호로 조인해 회원번호별 COUNT(*)와 SUM을 구하는 SQL에 대한 설명으로 옳은 것은?",
+ code:"[A 테이블]\n회원번호 | COL1 | COL2\n1001     | 1    | 1\n1002     | 1    | 2\n1003     | 4    | 3\n1004     | 3    | 2\n1005     | 4    | 5\n\n[B 테이블] TYPEB: 1, 2, 3, 4, 5\n\nCASE WHEN COL1 > COL2 THEN COL2 ELSE COL1 END  -- 둘 중 작은 값\n  >= B.TYPEB 인 행만 남겨 회원번호별로 집계",
+ o:["회원번호 1003(또는 1002)의 COUNT 값은 2다.","회원번호 1005의 SUM 값은 10이다.","(ㄴ) 조건이 없으면 결과가 21행이다.","(ㄱ)을 BETWEEN으로 바꿔도 결과가 같다."],a:[2],
+ ex:"회원번호별 작은 값은 1001부터 차례로 1, 1, 3, 2, 4입니다. 1005는 4 이하인 TYPEB 1, 2, 3, 4와 조인되어 SUM이 10입니다. 1002의 COUNT는 1, 1003의 COUNT는 3이라 ①은 틀립니다.",
+ note:"원본 사이트에서 테이블 값이 복원되면서 정답이 ①에서 ②로 바뀌었어요."},
 {n:32,s:2,q:"다음 SQL과 결과가 같은 것은?",code:"SELECT ... FROM A\nWHERE A.ID NOT IN (SELECT B.ID FROM B)",
  o:["A EXCEPT B","INTERSECT를 쓴 SQL","UNION을 쓴 SQL","B EXCEPT A"],a:[1],
  ex:"NOT IN 서브쿼리는 A에만 있고 B에는 없는 값을 남기므로 차집합 A EXCEPT(MINUS) B와 같습니다."},
@@ -246,23 +253,25 @@ const Q = [
 {n:35,s:2,q:"서브쿼리를 쓴 SQL 가운데 오류가 나는 것은?",
  o:["WHERE ... > (SELECT ... WHERE EMP_ID = 1170)","WHERE ... > (SELECT AVG(...) FROM ...)","WHERE ... > ALL (SELECT ...)","WHERE ... > (SELECT ... WHERE DEPT_ID = 10)"],a:[4],
  ex:"단일행 비교 연산자(>)에는 서브쿼리 결과가 한 행만 와야 합니다. DEPT_ID = 10인 사원은 여러 명이라 ④만 오류가 납니다.",note:"보기 순서는 다를 수 있어요."},
-{n:36,s:2,q:"학생 이름과 성적이 주어졌을 때, 순위를 구하는 다음 SQL의 빈칸 (ㄱ), (ㄴ)에 알맞은 것은?",
+{n:36,s:2,q:"학생 이름과 성적(95, 92, 90, 90, 87, 87, 85)이 주어졌을 때, 성적이 높은 순서대로 순위를 구하는 다음 SQL의 빈칸 (ㄱ), (ㄴ)에 알맞은 것은?",
  code:"SELECT T1.이름,\n       (SELECT (ㄱ) FROM 성적 T2 WHERE (ㄴ)) AS 순위\nFROM 성적 T1;",
  o:["(ㄱ) COUNT(*) - 1, (ㄴ) T1.성적 > T2.성적","(ㄱ) COUNT(*) - 1, (ㄴ) T1.성적 < T2.성적","(ㄱ) COUNT(*) + 1, (ㄴ) T1.성적 > T2.성적","(ㄱ) COUNT(*) + 1, (ㄴ) T1.성적 < T2.성적"],a:[4],
- ex:"내 성적보다 높은 사람 수를 세서 1을 더하면 순위가 됩니다. T1 < T2인 행을 세고 COUNT(*) + 1."},
+ ex:"내 성적보다 높은 사람 수를 세서 1을 더하면 순위가 됩니다. T1 < T2인 행을 세고 COUNT(*) + 1. 같은 점수는 같은 순위가 됩니다(1, 2, 3, 3, 5, 5, 7).",note:"③·④ 보기 순서가 바뀌었다는 의견도 있어요."},
 {n:37,s:2,q:"다음 SQL의 결과는?",code:"A(ID): 1\nB(ID): 1\nC(ID): 1\n\nSELECT COUNT(*)\nFROM A LEFT JOIN B ON (A.ID = B.ID)\nLEFT JOIN C ON (B.ID = C.ID);",
  o:["0","1","2","3"],a:[2],ex:"A와 B는 ID 1로 한 행이 매칭되고, 그 결과가 다시 C의 ID 1과 매칭되어 최종 1행입니다."},
-{n:38,s:2,q:"다음 테이블 정의(PRIMARY KEY와 CHECK 제약조건 포함, CHECK는 15, 20, 25 같은 값 제한)에 대한 설명으로 옳지 않은 것은?",
- o:[null,null,"PRIMARY KEY 컬럼에는 NULL은 안 되지만 중복 값은 들어갈 수 있다.","CHECK 제약조건은 NULL 값이 들어와도 통과된다."],a:[3],
- ex:"PRIMARY KEY는 NOT NULL과 UNIQUE를 함께 만족해야 하므로 중복 값도 들어갈 수 없습니다. CHECK 제약조건은 NULL이면 UNKNOWN이 되어 통과합니다."},
+{n:38,s:2,q:"다음 테이블 정의에 대한 설명으로 옳지 않은 것은?",
+ code:"CREATE TABLE ... (\n  A ...,\n  B ...,\n  COMMISSION ...,\n  CONSTRAINT ... PRIMARY KEY (A),\n  CONSTRAINT ... CHECK (COMMISSION IN (값1, 값2, 값3))\n);",
+ o:[null,"UNIQUE 컬럼에는 NULL이 들어갈 수 있다.","A에는 중복 값은 들어갈 수 있지만 NULL은 들어갈 수 없다.","COMMISSION에 들어갈 수 있는 값은 NULL과 CHECK에 적힌 세 값뿐이다."],a:[3],
+ ex:"PRIMARY KEY는 NOT NULL과 UNIQUE를 함께 만족해야 하므로 중복 값도 들어갈 수 없습니다. CHECK 제약조건은 NULL이면 조건 결과가 UNKNOWN이 되어 통과하므로 ④는 맞는 설명입니다.",
+ note:"발문이 '옳은 것'을 고르는 문제였다는 기억도 있어요."},
 {n:39,s:2,q:"급여가 일정 금액 이상인 사원의 급여를 10% 올리는 쿼리를 (가)~(다) 가운데 모두 고른 것은?",
  code:"(가) UPDATE ... SET 급여 = 급여 * 1.1 WHERE 급여 >= ...\n(나) UPDATE ... SET 급여 = 급여 * 1.1\n     WHERE EMPNO IN (SELECT EMPNO ... WHERE 급여 >= ...)\n(다) ROWNUM이나 서브쿼리를 쓴 다른 UPDATE",
  o:["(가), (나)","(가), (나), (다)",null,null],a:[1],ex:"(가)와 (나)는 같은 사원을 골라 급여를 올리지만 (다)는 대상이 달라집니다."},
 {n:40,s:2,q:"PARTITION BY로 그룹별 합계(예: 16, 6)를 구하는 윈도우 함수 SQL의 결과를 묻는 문제",
  o:[null,null,null,null],a:[],note:"테이블 값·보기·정답이 복원되지 않았어요. 정답을 알면 아래에서 직접 지정하세요."},
 {n:41,s:2,q:"두 테이블을 NATURAL JOIN한 뒤 합계(SUM)를 구한 결과는? (한쪽은 10, 20, 30, 다른 쪽은 10, 20이 한 번 더 들어 있음)",
- o:["오류 발생","60","90","225"],a:[1,3],d:true,
- note:"정답이 ①(오류)인지 ③(90)인지 의견이 갈려요. NATURAL JOIN의 공통 컬럼 앞에는 테이블 별칭을 붙일 수 없어서, SELECT 절에서 별칭.공통컬럼으로 썼다면 오류가 납니다."},
+ o:["오류 발생","60","90","225"],a:[1],
+ ex:"SELECT 절에서 NATURAL JOIN의 공통 컬럼에 테이블 별칭을 붙였기 때문에 오류가 납니다. NATURAL JOIN으로 묶인 공통 컬럼에는 별칭(소유자명)을 붙일 수 없습니다."},
 {n:42,s:2,q:"PARTITION BY로 세 그룹을 나눈 결과에서, 각 그룹 안의 값을 더하면 1이 되는 비율이 나왔다(예: 300 → 0.3, 200 → 0.2). 이 결과를 만든 함수는?",
  o:["PERCENT_RANK","CUME_DIST","RATIO_TO_REPORT","NTILE(10)"],a:[3],
  ex:"RATIO_TO_REPORT는 파티션 합계 대비 각 행 값의 비율을 구하므로 그룹별 합이 1이 됩니다."},
@@ -274,8 +283,8 @@ const Q = [
  o:["01-01-1998","01-04-1998","01-05-1998","01-06-1998"],a:[4],
  ex:"날짜를 MONTH 단위로 ROUND하면 16일부터는 다음 달 1일로 올립니다. 25일이므로 1998년 6월 1일.",note:"보기 순서는 다를 수 있어요."},
 {n:45,s:2,q:"다음 테이블(COL1 아이디, COL2 상급자, COL3 숫자)에 계층형 질의를 실행해 SUM(COL3)를 구할 때, 결과가 다른 하나는?",
- o:["순방향으로 전개하는 SQL","역방향으로 전개하는 SQL","역방향으로 전개하는 SQL","역방향으로 전개하는 SQL"],a:[3],
- ex:"WHERE 조건이나 CONNECT BY의 추가 조건 때문에 나머지 보기는 노드가 하나만 남아 같은 값(4)이 나오고, ③만 더 많은 노드가 남아 결과가 다릅니다.",note:"테이블 값과 보기 SQL은 복원되지 않았어요."},
+ o:["순방향으로 전개하는 SQL","역방향으로 전개하는 SQL (<> 조건 포함)","역방향으로 전개하는 SQL","역방향으로 전개하는 SQL"],a:[2,3],d:true,
+ ex:"WHERE 조건이나 CONNECT BY의 추가 조건 때문에 남는 노드 수가 달라지는 문제예요.",note:"정답이 ②인지 ③인지 의견이 갈려요. 테이블 값과 보기 SQL은 복원되지 않았어요."},
 {n:46,s:2,q:"키에 대한 설명 (가)~(다) 가운데 옳은 것을 모두 고른 것은?",
  code:"(가) 기본키는 유일성과 최소성을 가진다.\n(나) 특정 컬럼 조합의 값이 다른 행과 중복되지 않으면 후보키가 된다.\n(다) A, B가 복합 기본키이고 B가 다른 테이블을 참조하는 외래키일 때,\n     B는 NULL일 수 없다.",
  o:["(가)","(나)","(가), (나), (다)","(가), (다)"],a:[4],
@@ -298,24 +307,59 @@ const NUM = ["①","②","③","④"];
 const LS = "sqld63-grader-v1";
 let st = {sel:{}, idk:{}, key:{}, submitted:false, peek:false};
 try { const raw = localStorage.getItem(LS); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch(e) {}
-function save(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {} }
+// Saving: always to this browser; also to the artifact's private store (owner/editors only) when available.
+let remote = null, pushTimer = null;
+const syncEl = () => document.getElementById("sync");
+function setSync(text, on){ const el = syncEl(); if (el) { el.textContent = text; el.classList.toggle("on", !!on); } }
+function snapshot(){ return {sel:st.sel, idk:st.idk, key:st.key, submitted:st.submitted, savedAt:new Date().toISOString()}; }
+function hasMarks(o){ return Object.values(o.sel||{}).some(a => a.some(v => v)) || Object.values(o.idk||{}).some(Boolean) || Object.keys(o.key||{}).length > 0; }
+function pushRemote(){
+  if (!remote) return;
+  clearTimeout(pushTimer);
+  setSync("저장 중…");
+  pushTimer = setTimeout(() => {
+    remote.set(snapshot()).then(() => setSync("내 계정에 저장됨", true)).catch(() => setSync("이 브라우저에만 저장됨"));
+  }, 600);
+}
+function save(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {} pushRemote(); }
+async function initRemote(){
+  const timer = setTimeout(() => { if (!remote) setSync("이 브라우저에만 저장됨"); }, 10000);
+  try {
+    const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
+    if (!db) { clearTimeout(timer); setSync("이 브라우저에만 저장됨"); return; }
+    const ref = db.doc("grader/state");
+    const snap = await ref.get();
+    clearTimeout(timer);
+    remote = ref;
+    const d = snap.exists ? snap.data() : null;
+    if (d && hasMarks(d)) {
+      st.sel = d.sel || {}; st.idk = d.idk || {}; st.key = d.key || {}; st.submitted = !!d.submitted;
+      try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {}
+      render(); setSync("내 계정에 저장됨", true);
+    } else if (hasMarks(st)) {
+      pushRemote();
+    } else {
+      setSync("내 계정에 저장됨", true);
+    }
+  } catch(e) { clearTimeout(timer); remote = null; setSync("이 브라우저에만 저장됨"); }
+}
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const sel = n => st.sel[n] || [0,0,0,0];
 function keyOf(q){ const k = st.key[q.n]; return k ? {a:k, d:k.length !== 1, edited:true} : {a:q.a, d:!!q.d || q.a.length !== 1, edited:false}; }
 
-// classify: "ok" | "amb" | "bad"
+// classify: r = "ok" | "amb" | "bad"; for "amb", sub = "mark" | "split" | "open" | "idk"
 function grade(q){
   const s = sel(q.n), k = keyOf(q);
   const picked = [1,2,3,4].filter(i => s[i-1] > 0);
-  if (st.idk[q.n] || picked.length === 0) return {r:"amb", why: st.idk[q.n] ? "기억 안 남" : "미표시"};
-  if (k.a.length === 0) return {r:"amb", why:"정답 미확정"};
+  if (st.idk[q.n] || picked.length === 0) return {r:"amb", sub:"idk", why: st.idk[q.n] ? "기억 안 남" : "미표시"};
+  if (k.a.length === 0) return {r:"amb", sub:"open", why:"정답 미확정"};
   const hit = picked.filter(i => k.a.includes(i));
   if (hit.length === 0) return {r:"bad", why:"정답을 고르지 않음"};
-  if (k.d) return {r:"amb", why:"정답 의견 갈림"};
+  if (k.d) return {r:"amb", sub:"split", why:"정답 의견 갈림"};
   const solid = picked.filter(i => s[i-1] === 2);
   if (picked.length === 1 && solid.length === 1) return {r:"ok", why:"확실히 맞음"};
-  return {r:"amb", why: picked.length > 1 ? "여러 개 표시" : "점선(애매)"};
+  return {r:"amb", sub:"mark", why: picked.length > 1 ? "여러 개 표시" : "점선(애매)"};
 }
 
 const list = document.getElementById("list"), grid = document.getElementById("grid");
@@ -365,7 +409,7 @@ function render(){
   list.innerHTML = html;
 
   const done = Q.filter(q => st.idk[q.n] || sel(q.n).some(v => v)).length;
-  document.getElementById("prog").textContent = `${done} / 50 표시`;
+  document.getElementById("prog").firstChild.textContent = `${done} / 50 표시 `;
   document.getElementById("peek").checked = st.peek;
   document.getElementById("submit").textContent = st.submitted ? "결과 보기" : "제출하고 채점";
   renderResult();
@@ -375,11 +419,12 @@ function renderResult(){
   const box = document.getElementById("result");
   if (!st.submitted) { box.hidden = true; return; }
   box.hidden = false;
-  const c = {ok:[0,0], amb:[0,0], bad:[0,0]}, idkCnt = [0,0];
-  for (const q of Q) { const g = grade(q); c[g.r][q.s-1]++; if (g.why === "기억 안 남" || g.why === "미표시") idkCnt[q.s-1]++; }
+  const c = {ok:[0,0], amb:[0,0], bad:[0,0], mark:[0,0], split:[0,0], open:[0,0], idk:[0,0]}, nums = {mark:[], split:[], open:[], idk:[]};
+  for (const q of Q) { const g = grade(q); c[g.r][q.s-1]++; if (g.sub) { c[g.sub][q.s-1]++; nums[g.sub].push(q.n); } }
   const P = 2, tot = a => a[0] + a[1];
   const cell = (cnt) => `<b>${cnt*P}</b><small>${cnt}문항</small>`;
   const row = (cls, name, arr) => `<tr class="${cls}"><td>${name}</td><td>${cell(arr[0])}</td><td>${cell(arr[1])}</td><td>${cell(tot(arr))}</td></tr>`;
+  const subRow = (key, name) => `<tr class="sub"><td>└ ${name}${nums[key].length && nums[key].length <= 12 ? `<small>${nums[key].join(", ")}번</small>` : ""}</td><td>${cell(c[key][0])}</td><td>${cell(c[key][1])}</td><td>${cell(tot(c[key]))}</td></tr>`;
   const min = [c.ok[0]*P, c.ok[1]*P], max = [(c.ok[0]+c.amb[0])*P, (c.ok[1]+c.amb[1])*P];
   const minT = min[0]+min[1], maxT = max[0]+max[1];
   // pass rule: total >= 60, each subject >= 40% (1과목 8/20, 2과목 32/80)
@@ -400,10 +445,14 @@ function renderResult(){
       <thead><tr><th></th><th>1과목 (20점)</th><th>2과목 (80점)</th><th>총합 (100점)</th></tr></thead>
       <tbody>
         ${row("ok","확실한 점수", c.ok)}
-        ${row("amb","애매한 점수", c.amb)}
+        ${row("amb","애매한 점수 (합계)", c.amb)}
+        ${subRow("mark","점선·여러 개 표시")}
+        ${subRow("split","정답 의견 갈림")}
+        ${subRow("open","정답 미확정")}
+        ${subRow("idk","기억 안 남·미표시")}
         ${row("bad","확실히 틀린 점수", c.bad)}
       </tbody></table></div>
-    <p class="foot">애매한 점수에는 점선 표시, 여러 개 표시, 정답 의견이 갈리거나 미확정인 문항, 그리고 기억 안 남·미표시 문항(1과목 ${idkCnt[0]}개, 2과목 ${idkCnt[1]}개)이 들어가요. 합격 기준: 총점 60점 이상, 과목별 40% 이상(1과목 8점, 2과목 32점). 문항별 '정답 직접 지정'으로 정답을 바꾸면 점수가 바로 다시 계산돼요.</p>
+    <p class="foot">애매한 점수는 네 갈래로 나눴어요. 점선·여러 개 표시는 정답이 내가 표시한 보기 안에 있지만 확실하지 않은 문항, 정답 의견 갈림은 내 표시가 정답 후보 중 하나에 걸린 문항, 정답 미확정은 아직 정답이 없는 문항, 기억 안 남·미표시는 고른 답을 모르는 문항이에요. 합격 기준: 총점 60점 이상, 과목별 40% 이상(1과목 8점, 2과목 32점). 문항별 '정답 직접 지정'으로 정답을 바꾸면 점수가 바로 다시 계산돼요.</p>
     <div><button type="button" id="edit">답 다시 고치기</button></div>`;
 }
 
@@ -451,4 +500,5 @@ resetWrap.addEventListener("click", e => {
   }
 });
 render();
+initRemote();
 </script>
