@@ -225,6 +225,7 @@ function pushRemote(){
     remote.set(snapshot()).then(() => setSync("내 계정에 저장됨", true)).catch(() => setSync("이 브라우저에만 저장됨"));
   }, 600);
 }
+const touchedQs = new Set(); let touchedFlags = false;
 function save(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {} pushRemote(); }
 async function initRemote(){
   const timer = setTimeout(() => { if (!remote) setSync("이 브라우저에만 저장됨"); }, 10000);
@@ -238,7 +239,15 @@ async function initRemote(){
     const raw = snap.exists ? snap.data() : null;
     const d = raw ? migrate(raw) : null;
     if (d && hasMarks(d)) {
-      st.sel = d.sel || {}; st.idk = d.idk || {}; st.key = d.key || {}; st.submitted = !!d.submitted;
+      // Start from the saved set; questions changed on screen before it arrived keep their new marks.
+      const sel2 = Object.assign({}, d.sel || {}), idk2 = Object.assign({}, d.idk || {}), key2 = Object.assign({}, d.key || {});
+      for (const n of touchedQs) {
+        if (st.sel[n]) sel2[n] = st.sel[n]; else delete sel2[n];
+        idk2[n] = !!st.idk[n];
+        if (st.key[n]) key2[n] = st.key[n]; else delete key2[n];
+      }
+      st.sel = sel2; st.idk = idk2; st.key = key2; st.submitted = touchedFlags ? st.submitted : !!d.submitted;
+      if (touchedQs.size || touchedFlags) { try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {} render(); pushRemote(); return; }
       try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e) {}
       render();
       if ((raw.ver || 1) < DATA_VER) pushRemote(); else setSync("내 계정에 저장됨", true);
@@ -270,19 +279,7 @@ function grade(q){
 
 const list = document.getElementById("list"), grid = document.getElementById("grid");
 
-function render(){
-  // number grid
-  grid.innerHTML = Q.map(q => {
-    let c = "";
-    const marked = st.idk[q.n] || sel(q.n).some(v => v);
-    if (st.submitted) c = "r-" + grade(q).r; else if (marked) c = "marked";
-    return `<a href="#q${q.n}" class="${c}">${q.n}</a>`;
-  }).join("");
-
-  const show = st.submitted || st.peek;
-  let html = "", lastS = 0;
-  for (const q of Q) {
-    if (q.s !== lastS) { lastS = q.s; html += `<div class="subj">${q.s === 1 ? "1과목 · 데이터 모델링의 이해" : "2과목 · SQL 기본과 활용"}</div>`; }
+function cardHtml(q, show){
     const s = sel(q.n), k = keyOf(q), g = st.submitted ? grade(q) : null;
     const badge = g ? `<span class="badge ${g.r}">${{ok:"확실",amb:"애매",bad:"틀림"}[g.r]} · ${g.why}</span>` : "";
     const opts = q.o.map((t, i) => {
@@ -307,12 +304,33 @@ function render(){
           ${k.edited ? `<button type="button" data-keyreset="${q.n}">원래대로</button>` : ""}
         </div></div>`;
     }
-    html += `<article class="q${g ? " r-" + g.r : ""}" id="q${q.n}">
+    return `<article class="q${g ? " r-" + g.r : ""}" id="q${q.n}">
       <div class="qh"><span class="qn">${String(q.n).padStart(2,"0")}</span><span class="qt">${esc(q.q)}</span>${badge}</div>
       ${q.code ? `<pre>${esc(q.code)}</pre>` : ""}
       <div class="opts">${opts}${idkBtn}</div>${ans}</article>`;
+}
+
+function render(onlyN){
+  // number grid
+  grid.innerHTML = Q.map(q => {
+    let c = "";
+    const marked = st.idk[q.n] || sel(q.n).some(v => v);
+    if (st.submitted) c = "r-" + grade(q).r; else if (marked) c = "marked";
+    return `<a href="#q${q.n}" class="${c}">${q.n}</a>`;
+  }).join("");
+
+  const show = st.submitted || st.peek;
+  if (onlyN) {
+    const el = document.getElementById("q" + onlyN);
+    if (el) el.outerHTML = cardHtml(Q[onlyN - 1], show);
+  } else {
+    let html = "", lastS = 0;
+    for (const q of Q) {
+      if (q.s !== lastS) { lastS = q.s; html += `<div class="subj">${q.s === 1 ? "1과목 · 데이터 모델링의 이해" : "2과목 · SQL 기본과 활용"}</div>`; }
+      html += cardHtml(q, show);
+    }
+    list.innerHTML = html;
   }
-  list.innerHTML = html;
 
   const done = Q.filter(q => st.idk[q.n] || sel(q.n).some(v => v)).length;
   document.getElementById("prog").firstChild.textContent = `${done} / 50 표시 `;
@@ -368,10 +386,10 @@ list.addEventListener("click", e => {
     const n = +kb.dataset.key, i = +kb.dataset.i, q = Q[n-1];
     const cur = (st.key[n] || q.a).slice();
     const j = cur.indexOf(i); j >= 0 ? cur.splice(j,1) : cur.push(i);
-    cur.sort(); st.key[n] = cur; save(); render(); return;
+    cur.sort(); st.key[n] = cur; touchedQs.add(n); save(); render(n); return;
   }
   const kr = e.target.closest("[data-keyreset]");
-  if (kr) { delete st.key[kr.dataset.keyreset]; save(); render(); return; }
+  if (kr) { delete st.key[kr.dataset.keyreset]; touchedQs.add(+kr.dataset.keyreset); save(); render(+kr.dataset.keyreset); return; }
   const b = e.target.closest(".opt"); if (!b) return;
   const n = +b.dataset.n;
   if (b.dataset.i === "idk") {
@@ -382,24 +400,24 @@ list.addEventListener("click", e => {
     s[i] = (s[i] + 1) % 3; st.sel[n] = s;
     if (s[i]) st.idk[n] = false;
   }
-  save(); render();
+  touchedQs.add(n); save(); render(n);
   const again = document.querySelector(`[data-n="${n}"][data-i="${b.dataset.i}"]`); if (again) again.focus({preventScroll:true});
 });
 
 document.getElementById("peek").addEventListener("change", e => { st.peek = e.target.checked; save(); render(); });
 document.getElementById("submit").addEventListener("click", () => {
-  st.submitted = true; save(); render();
+  st.submitted = true; touchedFlags = true; save(); render();
   document.getElementById("result").scrollIntoView({behavior:"smooth", block:"start"});
 });
 document.getElementById("result").addEventListener("click", e => {
-  if (e.target.id === "edit") { st.submitted = false; save(); render(); document.getElementById("q1").scrollIntoView({behavior:"smooth"}); }
+  if (e.target.id === "edit") { st.submitted = false; touchedFlags = true; save(); render(); document.getElementById("q1").scrollIntoView({behavior:"smooth"}); }
 });
 const resetWrap = document.getElementById("resetWrap");
 resetWrap.addEventListener("click", e => {
   if (e.target.id === "reset") {
     resetWrap.innerHTML = `<span class="confirm">표시를 모두 지울까요? <button type="button" id="resetYes">지우기</button><button type="button" class="ghost" id="resetNo">취소</button></span>`;
   } else if (e.target.id === "resetYes") {
-    st = {sel:{}, idk:{}, key:st.key, submitted:false, peek:st.peek}; save(); render();
+    st = {sel:{}, idk:{}, key:st.key, submitted:false, peek:st.peek, ver:DATA_VER}; Q.forEach(q => touchedQs.add(q.n)); touchedFlags = true; save(); render();
     resetWrap.innerHTML = `<button class="ghost" id="reset" type="button">초기화</button>`;
   } else if (e.target.id === "resetNo") {
     resetWrap.innerHTML = `<button class="ghost" id="reset" type="button">초기화</button>`;
