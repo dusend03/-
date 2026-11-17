@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Scale AI vs. Appen Strategy Deck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: fixed 1600x900 slide canvas scaled into a stage; control bar below; optional notes panel on the right.
+   Deliberately single light theme: slides are specified as white consulting pages. */
+:root{
+  --navy:#172B49; --blue:#316AC5; --blue-l:#EAF1FC; --orange:#D97736; --orange-l:#FFF0E5;
+  --orange-t:#A9561F; /* darker orange for small text on white (contrast) */
+  --text:#202A36; --muted:#687586; --bg:#FFFFFF; --line:#DCE2E9;
+  --soft:#F4F6F9; --navy-l:#E7ECF3; --mis:#B4442C; --stage:#E6EAF0;
+  --font:"Inter",Arial,"Helvetica Neue",Helvetica,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{margin:0;background:var(--stage);color:var(--text);font-family:var(--font);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+*{box-sizing:border-box}
+.app{position:fixed;inset:0;display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.main{flex:1;display:flex;min-height:0}
+.stage{flex:1;position:relative;overflow:hidden;min-width:0}
+.deck{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+.slide{position:absolute;left:0;top:0;width:1600px;height:900px;background:var(--bg);display:none;overflow:hidden;
+  font-family:var(--font);color:var(--text);box-shadow:0 2px 14px rgba(23,43,73,.12)}
+.slide.active{display:block}
+.slide .notes{display:none}
+
+/* ---------- slide chrome ---------- */
+.sh{position:absolute;left:72px;right:72px;top:48px}
+.sec{font-size:15px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;gap:14px;align-items:center}
+.sec b{color:var(--navy);font-weight:700}
+.sec .prio{font-size:12px;letter-spacing:.1em;color:var(--navy);border:1.5px solid var(--navy);padding:2px 8px;border-radius:3px}
+.sh h2{margin:12px 0 0;font-size:39px;line-height:1.14;font-weight:700;color:var(--navy);letter-spacing:-.015em;text-wrap:balance;max-width:1440px}
+.bd{position:absolute;left:72px;right:72px;top:188px;bottom:70px}
+.sf{position:absolute;left:72px;right:72px;bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;gap:40px;
+  border-top:1px solid var(--line);padding-top:9px;font-size:13px;color:var(--muted);line-height:1.35}
+.sf .pg{font-weight:600;color:var(--navy);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sf .team{white-space:nowrap}
+.sc{color:var(--blue)} .ap{color:var(--orange-t)}
+.scb{background:var(--blue-l)} .apb{background:var(--orange-l)}
+.take{position:absolute;left:0;right:0;bottom:0;font-size:24px;font-weight:600;color:var(--navy);line-height:1.3;
+  border-left:5px solid var(--navy);padding:4px 0 4px 18px}
+.tag{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px}
+.tag.navy{background:var(--navy);color:#fff}
+.tag.blue{background:var(--blue);color:#fff}
+.tag.orange{background:var(--orange);color:#fff}
+.tag.ghost{border:1.5px solid var(--muted);color:var(--muted)}
+.abs{position:absolute}
+ul.clean{list-style:none;margin:0;padding:0}
+ul.dots{margin:0;padding-left:22px}
+ul.dots li{margin:0 0 6px}
+.num{font-variant-numeric:tabular-nums}
+svg text{font-family:var(--font)}
+
+/* VRIO marks */
+.mk{display:inline-block;width:26px;height:26px;border-radius:50%;vertical-align:middle}
+.mk.full{background:currentColor}
+.mk.part{border:3px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.mk.no{position:relative;border-radius:0}
+.mk.no::before,.mk.no::after{content:"";position:absolute;left:11px;top:-1px;width:4px;height:28px;background:var(--mis);transform:rotate(45deg)}
+.mk.no::after{transform:rotate(-45deg)}
+.mk.sm{width:18px;height:18px}
+.mk.sm.part{border-width:2.5px}
+.mk.sm.no::before,.mk.sm.no::after{left:7px;top:-1px;width:3px;height:20px}
+
+/* ---------- controls ---------- */
+.bar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--navy);color:#fff;position:relative}
+.bar button{font:600 14px var(--font);color:#fff;background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:4px;height:34px;padding:0 12px;cursor:pointer}
+.bar button:hover{background:rgba(255,255,255,.1)}
+.bar button:focus-visible{outline:2px solid #9DC0F5;outline-offset:2px}
+.bar button[aria-pressed="true"]{background:#fff;color:var(--navy)}
+.bar .count{font-variant-numeric:tabular-nums;font-size:14px;min-width:120px;text-align:center}
+.bar .title{flex:1;font-size:13px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.bar .prog{position:absolute;left:0;top:0;height:3px;background:var(--orange);transition:width .2s}
+.bar .help{font-size:12px;opacity:.6;white-space:nowrap}
+@media (max-width:760px){.bar .title,.bar .help{display:none}}
+.notes-panel{width:400px;flex:none;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:auto;padding:18px 20px;gap:12px}
+.notes-panel h3{margin:0;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.notes-panel .np-meta{display:flex;gap:8px;flex-wrap:wrap}
+.notes-panel .np-meta span{font-size:13px;font-weight:600;background:var(--navy-l);color:var(--navy);padding:3px 8px;border-radius:3px}
+.notes-panel .np-body{font-size:16px;line-height:1.55;color:var(--text)}
+.notes-panel .np-next{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.notes-panel .np-timer{font:700 26px var(--font);color:var(--navy);font-variant-numeric:tabular-nums}
+.notes-panel .np-timer button{font:600 12px var(--font);margin-left:8px;border:1px solid var(--line);background:#fff;border-radius:4px;padding:3px 8px;cursor:pointer;color:var(--navy)}
+@media (max-width:900px){.notes-panel{position:absolute;right:0;top:0;bottom:52px;width:min(400px,90vw);z-index:5;box-shadow:-4px 0 14px rgba(0,0,0,.15)}}
+.overview{position:fixed;inset:0;background:var(--stage);z-index:20;overflow:auto;
+  padding:24px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.overview h3{margin:0 0 16px;font-size:16px;color:var(--navy)}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.thumb{position:relative;aspect-ratio:16/9;max-width:100%;background:#fff;cursor:pointer;border:2px solid transparent;overflow:hidden;border-radius:2px}
+.thumb:hover,.thumb:focus-visible{border-color:var(--blue);outline:none}
+.thumb.cur{border-color:var(--orange)}
+.thumb .slide{display:block;transform-origin:0 0;box-shadow:none;pointer-events:none}
+.thumb .lbl{position:absolute;left:6px;bottom:6px;background:var(--navy);color:#fff;font-size:11px;font-weight:600;padding:2px 6px;border-radius:2px;z-index:2}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- print: one slide per page ---------- */
+@media print{
+  @page{size:1600px 900px;margin:0}
+  html,body{height:auto;overflow:visible;background:#fff;padding:0}
+  .app{position:static;display:block;padding:0}
+  .main{display:block}
+  .bar,.notes-panel,.overview{display:none!important}
+  .stage{position:static;overflow:visible}
+  .deck{position:static;transform:none!important;width:1600px;height:auto}
+  .slide{display:block!important;position:relative;box-shadow:none;break-after:page;page-break-after:always;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .slide:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+
+<div class="app">
+<div class="main">
+<div class="stage" id="stage">
+<div class="deck" id="deck">
+
+<!-- ===================== 01 COVER ===================== -->
+<section class="slide" data-title="Introduction &amp; Research Question">
+  <div class="abs" style="left:72px;right:72px;top:52px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">
+    <span>Strategic Management · Team Presentation</span><span><b style="color:var(--navy)">Wed_team3</b> · Hongik University</span>
+  </div>
+  <div class="abs" style="left:72px;top:150px;right:72px">
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="tag navy">AI Technology Stack · Layer 3</span>
+      <span style="font-size:20px;color:var(--muted);font-weight:500">Data &amp; Data Infrastructure</span>
+      <span class="tag ghost" style="margin-left:8px">FY2024 analysis · trend 2020–2024</span>
+    </div>
+    <h1 style="margin:26px 0 0;font-size:60px;line-height:1.08;font-weight:800;color:var(--navy);letter-spacing:-.025em">From Data Labeling to Expert-Driven AI:<br><span class="sc">Scale AI</span> <span style="color:var(--muted);font-weight:600">vs.</span> <span style="color:var(--orange)">Appen</span></h1>
+    <p style="margin:18px 0 0;font-size:26px;color:var(--muted);font-weight:500">A Comparative Strategic Analysis | FY2024</p>
+  </div>
+  <div class="abs" style="left:72px;right:72px;top:520px;height:250px;display:grid;grid-template-columns:330px 1fr 330px;gap:36px;align-items:stretch">
+    <div class="scb" style="border-top:6px solid var(--blue);padding:22px 24px">
+      <div style="font-size:32px;font-weight:800" class="sc">Scale AI</div>
+      <div style="font-size:18px;color:var(--muted);margin-top:4px">U.S. · founded 2016 · private</div>
+      <div style="font-size:40px;font-weight:700;color:var(--navy);margin-top:22px" class="num">≈$870M</div>
+      <div style="font-size:17px;color:var(--text)">FY2024 revenue (third-party est.)</div>
+      <div style="font-size:22px;font-weight:700;margin-top:8px" class="sc num">+14.5% YoY</div>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+      <div style="font-size:46px;font-weight:800;color:var(--navy);letter-spacing:-.02em;line-height:1.1">Same Industry. Different Outcomes. Why?</div>
+      <div style="font-size:21px;color:var(--text);margin-top:16px;max-width:680px;line-height:1.4">Research question: Why did Scale AI and Appen experience different performance outcomes despite operating in the same rapidly growing AI data industry?</div>
+      <div style="font-size:16px;color:var(--muted);margin-top:12px">Industry growth in 2024: <b style="color:var(--navy)">+25.2%</b> to $3.188B</div>
+    </div>
+    <div class="apb" style="border-top:6px solid var(--orange);padding:22px 24px">
+      <div style="font-size:32px;font-weight:800;color:var(--orange-t)">Appen</div>
+      <div style="font-size:18px;color:var(--muted);margin-top:4px">Australia · founded 1996 · ASX-listed</div>
+      <div style="font-size:40px;font-weight:700;color:var(--navy);margin-top:22px" class="num">$234.3M</div>
+      <div style="font-size:17px;color:var(--text)">FY2024 revenue (reported)</div>
+      <div style="font-size:22px;font-weight:700;margin-top:8px" class="ap num">−14.2% YoY</div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 3, 10–11; Scale AI revenue is a third-party estimate (Sacra, n.d.); Appen Limited (2025b); MarketLine (2025).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 1" data-time="0:25">Good afternoon. We are Wed_team3. Our topic sits in Layer 3 of the AI technology stack: data and data infrastructure. Scale AI and Appen both sell AI training data. In 2024 the market grew 25%, yet Scale AI grew about 14.5% while Appen shrank 14.2%. Our question: why did two firms in the same growing industry end up so differently? We answer it in three steps: how AI changed the industry, how each firm's resources and organization fit that change, and what each firm should do next.</aside>
+</section>
+
+<!-- ===================== 02 AI TRANSFORMATION ===================== -->
+<section class="slide" data-title="AI-driven Industry Transformation">
+  <div class="sh"><div class="sec"><b>External</b> · AI-driven Industry Transformation <span class="prio">Key slide</span></div>
+  <h2>AI Creates New Demand While Disrupting Traditional Labeling</h2></div>
+  <div class="bd">
+    <svg class="abs" style="left:0;top:0" width="1456" height="640" viewBox="0 0 1456 640" aria-hidden="true">
+      <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#172B49"/></marker></defs>
+      <path d="M300,330 C350,330 350,150 412,150" fill="none" stroke="#172B49" stroke-width="2.5" marker-end="url(#ar2)"/>
+      <path d="M300,330 C350,330 350,480 412,480" fill="none" stroke="#687586" stroke-width="2.5" marker-end="url(#ar2)"/>
+      <path d="M902,150 C950,150 950,320 1002,320" fill="none" stroke="#172B49" stroke-width="2.5" marker-end="url(#ar2)"/>
+      <path d="M902,480 C950,480 950,340 1002,340" fill="none" stroke="#172B49" stroke-width="2.5" marker-end="url(#ar2)"/>
+    </svg>
+    <div class="abs" style="left:0;top:0;width:300px">
+      <div style="font-size:15px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">2024 global market</div>
+      <div style="font-size:54px;font-weight:800;color:var(--navy);line-height:1.05;margin-top:6px" class="num">$3.188B</div>
+      <div style="font-size:18px;color:var(--text)">data collection &amp; labeling</div>
+      <div style="font-size:34px;font-weight:700;color:var(--navy);margin-top:10px" class="num">+25.2% <span style="font-size:18px;font-weight:500;color:var(--text)">YoY</span></div>
+    </div>
+    <div class="abs" style="left:0;top:262px;width:300px;height:136px;background:var(--navy);color:#fff;padding:20px 22px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.75">Driver</div>
+      <div style="font-size:26px;font-weight:700;line-height:1.2;margin-top:4px">AI advancement</div>
+      <div style="font-size:18px;opacity:.85">Generative AI &amp; LLMs</div>
+    </div>
+    <div class="abs" style="left:0;top:430px;width:300px;font-size:17px;color:var(--muted);line-height:1.45">AI is both the <b style="color:var(--navy)">customer</b> of this industry and its <b style="color:var(--navy)">substitute</b>.</div>
+
+    <div class="abs" style="left:414px;top:20px;width:488px;height:262px;border:2px solid var(--navy);padding:18px 22px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:25px;font-weight:700;color:var(--navy)">Demand expansion</div><div style="font-size:30px;font-weight:800;color:var(--navy)">+</div></div>
+      <div style="font-size:16px;color:var(--muted);margin-bottom:12px">New high-value, expert tasks</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--navy-l);padding:10px 12px;font-size:20px;font-weight:600;color:var(--navy)">RLHF</div>
+        <div style="background:var(--navy-l);padding:10px 12px;font-size:20px;font-weight:600;color:var(--navy)">Model evaluation</div>
+        <div style="background:var(--navy-l);padding:10px 12px;font-size:20px;font-weight:600;color:var(--navy);line-height:1.15">Expert-generated training data</div>
+        <div style="background:var(--navy-l);padding:10px 12px;font-size:20px;font-weight:600;color:var(--navy)">Red-teaming</div>
+      </div>
+    </div>
+    <div class="abs" style="left:414px;top:350px;width:488px;height:262px;border:2px dashed var(--muted);padding:18px 22px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:25px;font-weight:700;color:var(--text)">Task substitution</div><div style="font-size:30px;font-weight:800;color:var(--muted)">−</div></div>
+      <div style="font-size:16px;color:var(--muted);margin-bottom:12px">Routine manual labeling is automated</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--soft);padding:10px 12px;font-size:20px;font-weight:600">Auto-labeling</div>
+        <div style="background:var(--soft);padding:10px 12px;font-size:20px;font-weight:600">Synthetic data</div>
+        <div style="background:var(--soft);padding:10px 12px;font-size:20px;font-weight:600;line-height:1.15">Self-supervised learning</div>
+        <div style="background:var(--soft);padding:10px 12px;font-size:20px;font-weight:600;line-height:1.15">Less routine manual labeling</div>
+      </div>
+    </div>
+
+    <div class="abs" style="left:1004px;top:40px;width:452px;height:560px;background:var(--navy);color:#fff;padding:28px 30px;display:flex;flex-direction:column">
+      <div style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.75">Result</div>
+      <div style="font-size:30px;font-weight:800;line-height:1.15;margin-top:4px">Shift in Key Success Factors</div>
+      <div style="margin-top:24px;font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.7">From</div>
+      <div style="font-size:23px;font-weight:600;opacity:.75;margin-top:4px">Labor scale · Cost efficiency</div>
+      <div style="font-size:30px;line-height:1;margin:14px 0 10px;opacity:.9">↓</div>
+      <div style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.7">To</div>
+      <ul class="clean" style="margin-top:8px;display:grid;gap:9px">
+        <li style="font-size:23px;font-weight:700;border-left:4px solid #fff;padding-left:12px">Specialized expertise</li>
+        <li style="font-size:23px;font-weight:700;border-left:4px solid #fff;padding-left:12px">Technology infrastructure</li>
+        <li style="font-size:23px;font-weight:700;border-left:4px solid #fff;padding-left:12px">Data quality</li>
+        <li style="font-size:23px;font-weight:700;border-left:4px solid #fff;padding-left:12px">Organizational capabilities</li>
+      </ul>
+      <div style="margin-top:auto;font-size:17px;line-height:1.4;opacity:.85;border-top:1px solid rgba(255,255,255,.3);padding-top:12px">We test both firms against these four factors in the internal analysis (Slides 6–10).</div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 3–5, 8 (PESTEL technological &amp; economic factors; Five Forces substitutes; 2025–2029 outlook); MarketLine (2025).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 1" data-time="0:45">This is the core of our external story. AI affects the industry in two directions at once. First, it creates demand: LLM developers need RLHF, expert-written data, model evaluation and red-teaming. That pushed the market to $3.188 billion in 2024, up 25.2%. Second, AI substitutes for the old work: auto-labeling, synthetic data and self-supervised learning reduce the need for routine manual labeling. Both branches lead to one result: the key success factors move away from labor scale and low cost toward expertise, technology, data quality and organizational capability. Keep these four factors in mind; we use them to compare the firms later.</aside>
+</section>
+
+<!-- ===================== 03 FIVE FORCES ===================== -->
+<section class="slide" data-title="Five Forces &amp; Industry Dynamics">
+  <div class="sh"><div class="sec"><b>External</b> · Five Forces &amp; Industry Dynamics</div>
+  <h2>Rapid Market Growth Does Not Guarantee High Industry Attractiveness</h2></div>
+  <div class="bd">
+    <div class="abs" style="left:0;top:0;width:700px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="tag navy">FY2024 assessment</span>
+        <span style="font-size:15px;color:var(--muted)">5 = strong force = lower attractiveness</span>
+      </div>
+      <svg width="700" height="500" viewBox="0 0 700 500" role="img" aria-label="Five Forces radar chart, FY2024">
+        <g transform="translate(50,-14)">
+          <polygon points="300,240 338,267.6 323.5,312.4 276.5,312.4 262,267.6" fill="none" stroke="#DCE2E9"/>
+          <polygon points="300,200 376.1,255.3 347,344.7 253,344.7 223.9,255.3" fill="none" stroke="#DCE2E9"/>
+          <polygon points="300,160 414.1,242.9 370.5,377.1 229.5,377.1 185.9,242.9" fill="none" stroke="#DCE2E9"/>
+          <polygon points="300,120 452.2,230.6 394,409.4 206,409.4 147.8,230.6" fill="none" stroke="#DCE2E9"/>
+          <polygon points="300,80 490.2,218.2 417.6,441.8 182.4,441.8 109.8,218.2" fill="none" stroke="#C3CCD7"/>
+          <g stroke="#DCE2E9"><line x1="300" y1="280" x2="300" y2="80"/><line x1="300" y1="280" x2="490.2" y2="218.2"/><line x1="300" y1="280" x2="417.6" y2="441.8"/><line x1="300" y1="280" x2="182.4" y2="441.8"/><line x1="300" y1="280" x2="109.8" y2="218.2"/></g>
+          <polygon points="300,120 414.1,242.9 417.6,441.8 229.5,377.1 109.8,218.2" fill="#172B49" fill-opacity=".14" stroke="#172B49" stroke-width="3"/>
+          <g fill="#172B49"><circle cx="300" cy="120" r="6"/><circle cx="414.1" cy="242.9" r="6"/><circle cx="417.6" cy="441.8" r="6"/><circle cx="229.5" cy="377.1" r="6"/><circle cx="109.8" cy="218.2" r="6"/></g>
+          <text x="300" y="50" text-anchor="middle" font-size="19" font-weight="700" fill="#172B49">Threat of entry</text>
+          <text x="300" y="72" text-anchor="middle" font-size="17" fill="#202A36">Moderate–Strong</text>
+          <text x="502" y="212" font-size="19" font-weight="700" fill="#172B49">Supplier power</text>
+          <text x="502" y="234" font-size="17" fill="#202A36">Moderate</text>
+          <text x="430" y="472" font-size="19" font-weight="700" fill="#172B49">Buyer power</text>
+          <text x="430" y="494" font-size="17" fill="#202A36">Strong</text>
+          <text x="170" y="472" text-anchor="end" font-size="19" font-weight="700" fill="#172B49">Threat of substitutes</text>
+          <text x="170" y="494" text-anchor="end" font-size="17" fill="#202A36">Moderate</text>
+          <text x="98" y="200" text-anchor="end" font-size="19" font-weight="700" fill="#172B49">Competitive</text>
+          <text x="98" y="222" text-anchor="end" font-size="19" font-weight="700" fill="#172B49">rivalry</text>
+          <text x="98" y="244" text-anchor="end" font-size="17" fill="#202A36">Strong</text>
+        </g>
+      </svg>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:2px">
+        <span style="font-size:20px;font-weight:600;color:var(--text)">Overall industry attractiveness</span>
+        <span style="font-size:22px;font-weight:800;color:#fff;background:var(--navy);padding:4px 14px">MEDIUM</span>
+      </div>
+    </div>
+    <div class="abs" style="left:770px;top:0;right:0">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag ghost">2025–2029 outlook (report projection)</span></div>
+      <div style="font-size:21px;font-weight:700;color:var(--navy);margin:14px 0 12px">Three AI-related dynamics</div>
+      <div style="display:grid;gap:14px">
+        <div style="display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:start;border-top:1px solid var(--line);padding-top:12px">
+          <div style="font-size:34px;font-weight:800;color:var(--navy);line-height:1">↑</div>
+          <div><div style="font-size:22px;font-weight:700">Substitution pressure grows</div><div style="font-size:19px;color:var(--muted);line-height:1.35">Auto-labeling, synthetic data and self-/semi-supervised learning cut routine labeling.</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:start;border-top:1px solid var(--line);padding-top:12px">
+          <div style="font-size:34px;font-weight:800;color:var(--navy);line-height:1">↑</div>
+          <div><div style="font-size:22px;font-weight:700">Specialized experts gain bargaining power</div><div style="font-size:19px;color:var(--muted);line-height:1.35">Medical, legal and coding experts are hard to replace; crowd workers are not.</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:start;border-top:1px solid var(--line);padding-top:12px">
+          <div style="font-size:34px;font-weight:800;color:var(--navy);line-height:1">=</div>
+          <div><div style="font-size:22px;font-weight:700">Buyer power stays strong</div><div style="font-size:19px;color:var(--muted);line-height:1.35">Big Tech builds in-house data operations and compares providers on price and quality.</div></div>
+        </div>
+      </div>
+      <div style="font-size:19px;color:var(--text);margin-top:16px;line-height:1.4;background:var(--soft);padding:12px 16px">Rivalry shifts toward <b>technology, data quality and expertise</b> rather than labor scale and low prices.</div>
+      <div style="margin-top:16px;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600">Other PESTEL signals</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+        <span style="font-size:16px;border:1px solid var(--line);padding:4px 10px">Data sovereignty</span>
+        <span style="font-size:16px;border:1px solid var(--line);padding:4px 10px">Gig-labor regulation</span>
+        <span style="font-size:16px;border:1px solid var(--line);padding:4px 10px">Data privacy (GDPR / CCPA)</span>
+        <span style="font-size:16px;border:1px solid var(--line);padding:4px 10px">Copyright &amp; IP</span>
+        <span style="font-size:16px;border:1px solid var(--line);padding:4px 10px">Public AI datasets</span>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 3–8. Radar plots the report's ratings (Moderate = 3, Moderate–Strong = 4, Strong = 5). Full analysis: Appendix A1–A2.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 1" data-time="0:40">Market growth does not make the industry easy. In FY2024, buyer power and rivalry were strong, entry was moderate to strong, suppliers and substitutes were moderate, so overall attractiveness is medium. Looking ahead to 2025–2029, three dynamics come from AI: substitution gets stronger, experts gain bargaining power, and buyers stay powerful because Big Tech builds in-house. Regulation adds pressure: data sovereignty, gig-labor rules and privacy law all raise costs for cross-border crowd models. So profits go to firms with technology, expertise and quality, not to firms with the biggest crowd.</aside>
+</section>
+
+<!-- ===================== 04 STRATEGIC GROUPS ===================== -->
+<section class="slide" data-title="Strategic Group Map">
+  <div class="sh"><div class="sec"><b>External</b> · Strategic Group Map</div>
+  <h2>Scale AI and Appen Share a Strategic Group but Differ in Service Breadth</h2></div>
+  <div class="bd">
+    <svg class="abs" style="left:0;top:0" width="860" height="600" viewBox="0 0 860 600" role="img" aria-label="Strategic group map">
+      <g stroke="#EEF1F5"><line x1="80" y1="50" x2="800" y2="50"/><line x1="80" y1="182.5" x2="800" y2="182.5"/><line x1="80" y1="315" x2="800" y2="315"/><line x1="80" y1="447.5" x2="800" y2="447.5"/>
+      <line x1="260" y1="50" x2="260" y2="580"/><line x1="440" y1="50" x2="440" y2="580"/><line x1="620" y1="50" x2="620" y2="580"/><line x1="800" y1="50" x2="800" y2="580"/></g>
+      <line x1="80" y1="580" x2="812" y2="580" stroke="#687586" stroke-width="1.5"/>
+      <line x1="80" y1="580" x2="80" y2="38" stroke="#687586" stroke-width="1.5"/>
+      <rect x="620" y="36" width="210" height="256" rx="10" fill="#EAF1FC" fill-opacity=".55" stroke="#172B49" stroke-width="2" stroke-dasharray="7 5"/>
+      <text x="830" y="26" text-anchor="end" font-size="17" font-weight="700" fill="#172B49">Specialized AI Data Providers</text>
+      <circle cx="339.2" cy="346.8" r="60.7" fill="#9AA6B5" fill-opacity=".35" stroke="#687586"/>
+      <circle cx="440" cy="283.2" r="62.9" fill="#9AA6B5" fill-opacity=".35" stroke="#687586"/>
+      <circle cx="512" cy="187.8" r="32" fill="#9AA6B5" fill-opacity=".35" stroke="#687586"/>
+      <circle cx="756.8" cy="71.2" r="18.3" fill="#316AC5"/>
+      <circle cx="728" cy="262" r="9.5" fill="#D97736"/>
+      <text x="730" y="70" text-anchor="end" font-size="19" font-weight="800" fill="#316AC5">Scale AI</text>
+      <text x="730" y="90" text-anchor="end" font-size="15" fill="#202A36">≈$870M (est.)</text>
+      <text x="744" y="258" font-size="19" font-weight="800" fill="#A9561F">Appen</text>
+      <text x="744" y="278" font-size="15" fill="#202A36">$234.3M</text>
+      <text x="512" y="134" text-anchor="middle" font-size="16" font-weight="700" fill="#202A36">TELUS Digital</text>
+      <text x="512" y="152" text-anchor="middle" font-size="15" fill="#687586">$2,658M</text>
+      <text x="470" y="370" font-size="16" font-weight="700" fill="#202A36">Teleperformance <tspan font-weight="400" fill="#687586">€10,280M</tspan></text>
+      <text x="339" y="432" text-anchor="middle" font-size="16" font-weight="700" fill="#202A36">Atos <tspan font-weight="400" fill="#687586">€9,577M</tspan></text>
+      <text x="440" y="598" text-anchor="middle" font-size="17" font-weight="600" fill="#202A36">Degree of AI data service specialization →</text>
+      <text x="86" y="598" font-size="15" fill="#687586">Lower</text>
+      <text x="800" y="598" text-anchor="end" font-size="15" fill="#687586">Higher</text>
+      <text transform="translate(40,315) rotate(-90)" text-anchor="middle" font-size="17" font-weight="600" fill="#202A36">Breadth of data services offered →</text>
+      <text transform="translate(62,578) rotate(-90)" font-size="15" fill="#687586">Narrow</text>
+      <text transform="translate(62,96) rotate(-90)" font-size="15" fill="#687586">Broad</text>
+    </svg>
+    <div class="abs" style="left:900px;top:0;right:0">
+      <div style="font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600">Three strategic groups (2024)</div>
+      <ul class="clean" style="display:grid;gap:10px;margin-top:10px">
+        <li style="font-size:19px;line-height:1.35"><b style="color:var(--navy)">Specialized AI Data Providers</b><br><span class="sc" style="font-weight:600">Scale AI</span>, <span class="ap" style="font-weight:600">Appen</span>: AI data is the core business</li>
+        <li style="font-size:19px;line-height:1.35"><b>Diversified Digital Service Providers</b><br>TELUS Digital, Teleperformance: AI data within CX and digital services</li>
+        <li style="font-size:19px;line-height:1.35"><b>Diversified IT Service Provider</b><br>Atos: data services within IT consulting</li>
+      </ul>
+      <div style="font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:22px">Breadth inside the group</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:18px">
+        <thead><tr style="color:var(--muted);font-size:15px"><th style="text-align:left;font-weight:600;padding:4px 0">AI data value chain</th><th style="width:80px;font-weight:700" class="sc">Scale</th><th style="width:80px;font-weight:700" class="ap">Appen</th></tr></thead>
+        <tbody>
+          <tr style="border-top:1px solid var(--line)"><td style="padding:6px 0">Data collection</td><td style="text-align:center;color:var(--blue)"><i class="mk sm full"></i></td><td style="text-align:center;color:var(--orange)"><i class="mk sm full"></i></td></tr>
+          <tr style="border-top:1px solid var(--line)"><td style="padding:6px 0">Annotation &amp; labeling</td><td style="text-align:center;color:var(--blue)"><i class="mk sm full"></i></td><td style="text-align:center;color:var(--orange)"><i class="mk sm full"></i></td></tr>
+          <tr style="border-top:1px solid var(--line)"><td style="padding:6px 0">RLHF &amp; model evaluation</td><td style="text-align:center;color:var(--blue)"><i class="mk sm full"></i></td><td style="text-align:center;color:var(--orange)"><i class="mk sm part"></i></td></tr>
+          <tr style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><td style="padding:6px 0">Enterprise AI solutions</td><td style="text-align:center;color:var(--blue)"><i class="mk sm full"></i></td><td style="text-align:center;color:var(--orange)"><i class="mk sm part"></i></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:14px;color:var(--muted);margin-top:6px">● core offering &nbsp; ◐ emerging (newer GenAI products)</div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 8–9, 12–13. Positions reproduced from the report's qualitative map. Circle area ≈ total 2024 company revenue (not AI data revenue only), in reported currency; Scale AI is a third-party estimate.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 1" data-time="0:35">We map five major players on two axes: how specialized they are in AI data, and how broad their data services are. Scale AI and Appen form the same group, specialized AI data providers. The bubbles show total company revenue, so Teleperformance and Atos look large but AI data is a small part of their business. Inside the group, Scale AI covers more of the value chain: from collection and labeling to RLHF, model evaluation and enterprise AI. Appen stayed closer to data collection and human-generated data, with newer GenAI products still emerging. So the gap is not about the industry they are in, it is about how far each firm moved along the value chain.</aside>
+</section>
+
+<!-- ===================== 05 PERFORMANCE ===================== -->
+<section class="slide" data-title="Performance Divergence">
+  <div class="sh"><div class="sec"><b>Performance</b> · 2020–2024 Revenue</div>
+  <h2>A Growing Industry, but Diverging Firm Performance</h2></div>
+  <div class="bd">
+    <div class="abs" style="left:0;top:0;font-size:16px;color:var(--muted)">Annual revenue, US$ million</div>
+    <svg class="abs" style="left:0;top:22px" width="990" height="514" viewBox="0 0 1040 540" role="img" aria-label="Revenue line chart 2020 to 2024">
+      <g stroke="#E6EAF0"><line x1="90" y1="40" x2="890" y2="40"/><line x1="90" y1="147.5" x2="890" y2="147.5"/><line x1="90" y1="255" x2="890" y2="255"/><line x1="90" y1="362.5" x2="890" y2="362.5"/></g>
+      <line x1="90" y1="470" x2="890" y2="470" stroke="#687586" stroke-width="1.5"/>
+      <g font-size="16" fill="#687586" text-anchor="end"><text x="78" y="45">1,000</text><text x="78" y="152">750</text><text x="78" y="260">500</text><text x="78" y="367">250</text><text x="78" y="475">0</text></g>
+      <g font-size="17" fill="#202A36" text-anchor="middle"><text x="90" y="498">2020</text><text x="290" y="498">2021</text><text x="490" y="498">2022</text><text x="690" y="498">2023</text><text x="890" y="498" font-weight="700">2024</text></g>
+      <polyline points="90,292.5 290,277.7 490,302.9 690,352.6 890,369.3" fill="none" stroke="#D97736" stroke-width="4"/>
+      <polyline points="90,427 290,392.6 490,345.3 690,143.2 890,95.9" fill="none" stroke="#316AC5" stroke-width="4" stroke-dasharray="10 7"/>
+      <g fill="#D97736"><circle cx="90" cy="292.5" r="7"/><circle cx="290" cy="277.7" r="7"/><circle cx="490" cy="302.9" r="7"/><circle cx="690" cy="352.6" r="7"/><circle cx="890" cy="369.3" r="7"/></g>
+      <g fill="#fff" stroke="#316AC5" stroke-width="3"><circle cx="90" cy="427" r="7"/><circle cx="290" cy="392.6" r="7"/><circle cx="490" cy="345.3" r="7"/><circle cx="690" cy="143.2" r="7"/><circle cx="890" cy="95.9" r="7"/></g>
+      <g font-size="17" font-weight="700" fill="#A9561F" text-anchor="middle"><text x="90" y="276">412.7</text><text x="290" y="261">447.3</text><text x="490" y="286">388.5</text><text x="690" y="380">273.0</text><text x="890" y="397">234.3</text></g>
+      <g font-size="17" font-weight="700" fill="#316AC5" text-anchor="middle"><text x="90" y="455">≈100</text><text x="290" y="420">≈180</text><text x="490" y="373">≈290</text><text x="690" y="125">≈760</text><text x="890" y="78">≈870</text></g>
+      <text x="912" y="92" font-size="18" font-weight="800" fill="#316AC5">Scale AI</text>
+      <text x="912" y="112" font-size="15" fill="#316AC5">(third-party est.)</text>
+      <text x="912" y="342" font-size="18" font-weight="800" fill="#A9561F">Appen</text>
+      <text x="912" y="360" font-size="15" fill="#A9561F">(reported)</text>
+      <text x="610" y="190" text-anchor="end" font-size="15" fill="#316AC5">≈+162% in 2023 (est.)</text>
+      <line x1="890" y1="410" x2="890" y2="430" stroke="#687586"/>
+      <text x="884" y="446" text-anchor="end" font-size="15" fill="#202A36">Google contract ended Mar 2024 (≈30% of revenue)</text>
+    </svg>
+    <div class="abs" style="left:1020px;top:0;right:0">
+      <div style="font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600">2024 revenue growth</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px">
+        <div style="background:var(--soft);padding:12px"><div style="font-size:27px;font-weight:800;color:var(--navy)" class="num">+25.2%</div><div style="font-size:16px">Industry</div></div>
+        <div class="scb" style="padding:12px"><div style="font-size:27px;font-weight:800" class="sc num">+14.5%</div><div style="font-size:16px">Scale AI (est.)</div></div>
+        <div class="apb" style="padding:12px"><div style="font-size:27px;font-weight:800" class="ap num">−14.2%</div><div style="font-size:16px">Appen</div></div>
+      </div>
+      <ul class="clean" style="display:grid;gap:12px;margin-top:20px;font-size:19px;line-height:1.35">
+        <li style="border-top:1px solid var(--line);padding-top:10px"><b class="sc">Scale AI</b> growth slowed after rapid 2023 expansion and fell below market growth.</li>
+        <li style="border-top:1px solid var(--line);padding-top:10px"><b class="ap">Appen</b> lost its Google contract in March 2024, a direct hit to revenue.</li>
+        <li style="border-top:1px solid var(--line);padding-top:10px">Appen's <b>non-Google revenue grew 16.0%</b>; underlying EBITDA before FX improved from <b class="num">−$20.4M</b> to <b class="num">+$3.5M</b>.</li>
+        <li style="border-top:1px solid var(--line);padding-top:10px;color:var(--muted)">Scale AI is private: profitability is not disclosed, so no margin comparison is made.</li>
+      </ul>
+    </div>
+    <div class="take">The gap has two drivers: Appen's one-off client loss, and a deeper difference in fit with AI-era demand.</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 10, 15–16; Sacra (n.d.) for Scale AI estimates; Appen Limited (2025b); MarketLine (2025). Dashed line = estimates.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 1" data-time="0:45">Here is the outcome we need to explain. Scale AI's revenue, based on third-party estimates, rose from about 100 million dollars in 2020 to about 870 million in 2024. Appen peaked in 2021 at 447 million and fell to 234 million. In 2024 the industry grew 25%, Scale about 14.5% and Appen fell 14.2%. Two cautions. First, Google ended its contract in March 2024, about 30% of Appen's revenue, so part of the decline is a client loss, not AI alone. Appen's non-Google revenue actually grew 16% and its underlying EBITDA turned positive. Second, Scale is private, so we do not claim it is more profitable. The next section asks what internal differences sit behind this gap. Now I'll hand over to Presenter 2.</aside>
+</section>
+
+<!-- ===================== 06 VALUE CHAIN ===================== -->
+<section class="slide" data-title="Value Chain Comparison">
+  <div class="sh"><div class="sec"><b>Internal</b> · Value Chain Comparison</div>
+  <h2>Different Value Chains Create Different Sources of Advantage</h2></div>
+  <div class="bd">
+    <style>
+      .vc-row{position:absolute;left:0;width:1340px;height:56px;display:grid;grid-template-columns:230px 1fr 1fr;gap:6px}
+      .vc-row>div{display:flex;align-items:center;padding:0 14px;font-size:17px;line-height:1.22}
+      .vc-row .lab{background:var(--soft);font-weight:700;color:var(--navy);font-size:17px}
+      .vc-row.key .lab{background:var(--navy);color:#fff}
+      .vc-row.key{outline:2.5px solid var(--navy);outline-offset:2px}
+      .vc-col{position:absolute;top:278px;width:262px;display:grid;grid-template-rows:46px 108px 108px;gap:6px}
+      .vc-col .hd{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;color:var(--navy);background:var(--soft);
+        clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);padding:0 18px;text-align:center;line-height:1.1}
+      .vc-col.key .hd{background:var(--navy);color:#fff}
+      .vc-col.key{outline:2.5px solid var(--navy);outline-offset:3px}
+      .vc-col .c{padding:10px 12px;font-size:17px;line-height:1.25}
+      .vc-col .c b{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+    </style>
+    <div class="abs" style="left:0;top:-30px;font-size:15px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Support activities</div>
+    <div class="abs" style="left:236px;top:-30px;width:550px;font-size:16px;font-weight:700" class="sc"><span class="sc">Scale AI</span></div>
+    <div class="abs" style="left:791px;top:-30px;font-size:16px;font-weight:700"><span class="ap">Appen</span></div>
+    <div class="vc-row" style="top:0"><div class="lab">Technology development</div><div class="scb">Tools for labeling, RLHF, evaluation and AI safety</div><div class="apb">Quality Flow, Build My RAG, RLHF, Document Intelligence</div></div>
+    <div class="vc-row key" style="top:62px"><div class="lab">Information systems</div><div class="scb">Platform coordinates workers, tracks quality, delivers via API</div><div class="apb">Task platform with legacy bottlenecks; rebuild announced Aug 2024</div></div>
+    <div class="vc-row key" style="top:124px"><div class="lab">Human resources</div><div class="scb">Managed workers plus experts (PhDs, lawyers, accountants)</div><div class="apb">1M+ crowd: flexible, but quality, pay and retention are hard</div></div>
+    <div class="vc-row" style="top:186px"><div class="lab">Firm infrastructure</div><div class="scb">≈$1B raised in 2024; strategic partnerships</div><div class="apb">33% opex cut in H1 2024; restructuring</div></div>
+    <div class="abs" style="left:0;top:252px;font-size:15px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Primary activities</div>
+    <div class="vc-col" style="left:0"><div class="hd">Inbound logistics</div><div class="c scb"><b class="sc">Scale AI</b>Client data and complex AI tasks</div><div class="c apb"><b class="ap">Appen</b>Global crowd-based data collection</div></div>
+    <div class="vc-col key" style="left:270px"><div class="hd">Operations</div><div class="c scb"><b class="sc">Scale AI</b>Integrated software, automation, expert verification</div><div class="c apb"><b class="ap">Appen</b>Crowd workforce and legacy workflows</div></div>
+    <div class="vc-col" style="left:540px"><div class="hd">Outbound logistics</div><div class="c scb"><b class="sc">Scale AI</b>RLHF, model evaluation, red-teaming</div><div class="c apb"><b class="ap">Appen</b>Multilingual, speech and emerging GenAI services</div></div>
+    <div class="vc-col" style="left:810px"><div class="hd">Marketing &amp; sales</div><div class="c scb"><b class="sc">Scale AI</b>Frontier AI labs and government clients</div><div class="c apb"><b class="ap">Appen</b>Historical Big Tech dependence; now diversifying</div></div>
+    <div class="vc-col key" style="left:1080px"><div class="hd">Service</div><div class="c scb"><b class="sc">Scale AI</b>Continuous model improvement</div><div class="c apb"><b class="ap">Appen</b>Relatively project-based delivery</div></div>
+    <div class="abs" style="left:1360px;top:0;width:96px;height:556px;background:var(--navy-l);clip-path:polygon(0 0,40% 0,100% 50%,40% 100%,0 100%);display:flex;align-items:center;padding-left:10px">
+      <span style="writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;color:var(--navy);font-size:18px;letter-spacing:.2em">MARGIN</span>
+    </div>
+    <div class="abs" style="left:0;top:566px;font-size:15px;color:var(--muted)"><span style="display:inline-block;width:18px;height:12px;background:var(--navy);vertical-align:middle;margin-right:6px"></span>Outlined = activities where the two firms differ most</div>
+    <div class="take" style="bottom:0;font-size:23px">Scale AI integrates technology and specialized expertise; Appen is still transitioning from a crowd-centered operating model.</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 11–13 (Porter value chain); Appen Limited (2024d, 2024e); Wang (2024). Detail: Appendix A4.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 2" data-time="1:00">Now the internal analysis, the heart of our argument. Using Porter's value chain, the biggest differences are in four outlined activities. In operations, Scale combines software, automation and expert verification; Appen relies on a crowd and legacy workflows. In service, Scale sells continuous model improvement through evaluation and red-teaming, which creates repeat business; Appen is more project-based. Behind these sit information systems, where Scale's platform is a core advantage while Appen only announced a full rebuild in August 2024, and human resources, where Scale added domain experts while Appen's strength is a one-million-person crowd. These are exactly the KSFs from Slide 2: expertise, technology, quality.</aside>
+</section>
+
+<!-- ===================== 07 VRIO ===================== -->
+<section class="slide" data-title="VRIO Analysis">
+  <div class="sh"><div class="sec"><b>Internal</b> · VRIO Analysis <span class="prio">Key slide</span></div>
+  <h2>Owning Valuable Resources Is Not Enough to Capture Value</h2></div>
+  <div class="bd">
+    <style>
+      .vrio{position:absolute;left:0;top:0;width:960px;border-collapse:collapse;font-size:19px}
+      .vrio th{font-size:15px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding:10px 8px;text-align:center;border-bottom:2px solid var(--navy)}
+      .vrio th.l{text-align:left}
+      .vrio td{padding:0 8px;height:76px;border-bottom:1px solid var(--line);text-align:center}
+      .vrio td.l{text-align:left;font-weight:600}
+      .vrio .o{background:var(--navy-l)}
+      .vrio th.o{background:var(--navy);color:#fff;border-bottom-color:var(--navy)}
+      .vrio .imp{font-size:16px;font-weight:700;text-align:left;line-height:1.2}
+      .vrio .firm{font-size:18px;font-weight:800;text-align:left;vertical-align:middle}
+    </style>
+    <table class="vrio">
+      <thead><tr><th class="l" style="width:110px">Firm</th><th class="l">Resource / capability</th><th style="width:70px">V</th><th style="width:70px">R</th><th style="width:70px">I</th><th class="o" style="width:92px">O</th><th class="l" style="width:210px">Implication</th></tr></thead>
+      <tbody>
+        <tr style="color:var(--blue)"><td class="firm scb" rowspan="3">Scale AI</td><td class="l" style="color:var(--text)">Specialized workforce</td><td><i class="mk full"></i></td><td><i class="mk full"></i></td><td><i class="mk part"></i></td><td class="o"><i class="mk full"></i></td><td class="imp" style="color:var(--text)">Temporary advantage (at most)</td></tr>
+        <tr style="color:var(--blue);background:var(--blue-l)"><td class="l" style="color:var(--navy);font-weight:800">RLHF &amp; model evaluation</td><td><i class="mk full"></i></td><td><i class="mk full"></i></td><td><i class="mk full"></i></td><td class="o" style="background:#D6E3F7"><i class="mk full"></i></td><td class="imp sc">Sustained competitive advantage</td></tr>
+        <tr style="color:var(--blue)"><td class="l" style="color:var(--text)">Major client relationships</td><td><i class="mk full"></i></td><td><i class="mk part"></i></td><td><i class="mk part"></i></td><td class="o"><i class="mk full"></i></td><td class="imp" style="color:var(--text)">Temporary advantage (at most)</td></tr>
+        <tr style="color:var(--orange)"><td class="firm apb" rowspan="2" style="color:var(--orange-t)">Appen</td><td class="l" style="color:var(--text)">Multilingual &amp; speech data</td><td><i class="mk full"></i></td><td><i class="mk part"></i></td><td><i class="mk part"></i></td><td class="o"><i class="mk part"></i></td><td class="imp ap">Temporary, not fully captured</td></tr>
+        <tr style="color:var(--orange)"><td class="l" style="color:var(--text)">Traditional crowdsourcing</td><td><i class="mk full"></i></td><td><i class="mk no"></i></td><td><i class="mk no"></i></td><td class="o"><i class="mk part"></i></td><td class="imp" style="color:var(--text)">Competitive parity</td></tr>
+      </tbody>
+    </table>
+    <div class="abs" style="left:0;top:470px;width:960px;display:flex;gap:26px;font-size:16px;color:var(--text);align-items:center">
+      <span><i class="mk sm full" style="color:var(--navy)"></i>&nbsp; Meets criterion</span>
+      <span><i class="mk sm part" style="color:var(--navy)"></i>&nbsp; Partially meets</span>
+      <span><i class="mk sm no"></i>&nbsp; Does not meet</span>
+      <span style="margin-left:auto;font-weight:600;color:var(--navy)">O = organized to capture value</span>
+    </div>
+    <div class="abs" style="left:1010px;top:0;right:0">
+      <div style="font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600">Key findings</div>
+      <ul class="clean" style="display:grid;gap:14px;margin-top:10px;font-size:20px;line-height:1.35">
+        <li style="border-top:1px solid var(--line);padding-top:10px"><b class="sc">Scale AI's RLHF &amp; model evaluation</b> meets all four criteria: the source of sustained advantage.</li>
+        <li style="border-top:1px solid var(--line);padding-top:10px"><b class="ap">Appen's multilingual resources</b> are valuable, but the organization only partly captures their value.</li>
+        <li style="border-top:1px solid var(--line);padding-top:10px"><b>Traditional crowdsourcing</b> is easy to copy and gives only parity, now that AI automates routine tasks.</li>
+      </ul>
+    </div>
+    <div class="abs" style="left:1010px;right:0;top:416px;height:150px;background:var(--navy);color:#fff;padding:16px 20px">
+      <div style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.75">Transition</div>
+      <div style="font-size:20px;line-height:1.35;margin-top:6px;font-weight:600">VRIO shows <u>where</u> Appen loses value: the O column. The Congruence Model (Slide 10) explains <u>why</u>.</div>
+    </div>
+    <div class="take" style="width:960px">The firms differ less in what they own than in how they organize it.</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 14–15 (VRIO table and competitive implications). Ratings reproduced exactly from the report table (○ = meets, △ = partial, ✕ = not met). Detail: Appendix A5.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 2" data-time="1:00">VRIO asks whether a resource is valuable, rare, costly to imitate, and whether the firm is organized to capture its value. Scale's RLHF and model evaluation capability meets all four: a sustained advantage. Its workforce and client relationships are valuable but imitable or only partly rare, so at most temporary. Appen's multilingual and speech data is valuable and partly rare, but look at the O column: only partially met. After losing Google, Appen itself said it needed to improve delivery, crowd management, leadership and sales. Traditional crowdsourcing, the old core, now gives only parity. So the decisive column is O. The next question is why Appen could not organize around its assets.</aside>
+</section>
+
+<!-- ===================== 08 DYNAMIC CAPABILITIES ===================== -->
+<section class="slide" data-title="Dynamic Capabilities vs. Core Rigidity">
+  <div class="sh"><div class="sec"><b>Internal</b> · Dynamic Capabilities vs. Core Rigidity <span class="prio">Key slide</span></div>
+  <h2>The Ability to Reconfigure Capabilities Determines Strategic Adaptation</h2></div>
+  <div class="bd">
+    <style>
+      .lane{position:absolute;left:0;right:0;height:186px;display:grid;grid-template-columns:230px 1fr 1fr 1fr;gap:0;align-items:stretch}
+      .lane .who{display:flex;flex-direction:column;justify-content:center;padding-right:16px}
+      .step{clip-path:polygon(0 0,calc(100% - 30px) 0,100% 50%,calc(100% - 30px) 100%,0 100%,30px 50%);padding:16px 46px 16px 48px;display:flex;flex-direction:column;justify-content:center;margin-right:-22px}
+      .step .t{font-size:22px;font-weight:700;line-height:1.2}
+      .step .d{font-size:17px;line-height:1.3;margin-top:6px}
+      .step .y{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+    </style>
+    <div class="lane" style="top:0">
+      <div class="who"><div style="font-size:30px;font-weight:800" class="sc">Scale AI</div><span class="tag blue" style="align-self:flex-start;margin-top:8px">Dynamic capabilities</span><div style="font-size:16px;color:var(--muted);margin-top:8px">Sense → seize → reconfigure</div></div>
+      <div class="step" style="background:var(--blue-l);color:var(--navy)"><div class="y sc">From 2016</div><div class="t">Autonomous-driving data</div><div class="d">Labeling roads, pedestrians, signs</div></div>
+      <div class="step" style="background:#C9DBF5;color:var(--navy)"><div class="y sc">Expansion</div><div class="t">Generative AI &amp; RLHF</div><div class="d">Expert data; OpenAI fine-tuning partner (2023)</div></div>
+      <div class="step" style="background:var(--blue);color:#fff;margin-right:0;clip-path:polygon(0 0,calc(100% - 30px) 0,100% 50%,calc(100% - 30px) 100%,0 100%,30px 50%)"><div class="y" style="opacity:.85">FY2024</div><div class="t">Model evaluation &amp; government AI</div><div class="d">Expert LLM leaderboards; DoD CDAO LLM testing</div></div>
+    </div>
+    <div class="lane" style="top:206px">
+      <div class="who"><div style="font-size:30px;font-weight:800;color:var(--orange-t)">Appen</div><span class="tag orange" style="align-self:flex-start;margin-top:8px">Core rigidity</span><div style="font-size:16px;color:var(--muted);margin-top:8px">Past strength locks in the model</div></div>
+      <div class="step" style="background:var(--orange-l);color:var(--text)"><div class="y ap">From 1996</div><div class="t">Global crowd network</div><div class="d">1M+ contributors, 500+ languages</div></div>
+      <div class="step" style="background:#FADBC4;color:var(--text)"><div class="y ap">Scale-up</div><div class="t">High-volume data services</div><div class="d">Collection, transcription, translation, labeling</div></div>
+      <div class="step" style="background:repeating-linear-gradient(135deg,#FFF0E5 0 12px,#FCE3D0 12px 24px);color:var(--text);margin-right:0"><div class="y ap">FY2024</div><div class="t">Difficulty adapting to expert-driven tasks</div><div class="d">Volume-built workflows; platform rebuild only from Aug 2024</div></div>
+    </div>
+    <div class="abs" style="left:0;top:420px;width:690px;height:152px;border:2px solid var(--orange);padding:14px 20px">
+      <div style="font-size:21px;font-weight:700;color:var(--orange-t)">The network is not the problem</div>
+      <div style="font-size:19px;line-height:1.38;margin-top:6px">Appen's multilingual network stays valuable (VRIO: V met). The rigidity lies in the <b>operating configuration</b> around it: volume tasks, crowd pay and timers, legacy platform.</div>
+    </div>
+    <div class="abs" style="left:730px;right:0;top:420px;height:152px;background:var(--soft);padding:14px 20px">
+      <div style="font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600">Link to industry KSF shift (Slide 2)</div>
+      <div style="font-size:18px;margin-top:4px;color:var(--navy);font-weight:600">Labor scale &amp; cost → expertise · technology · quality · organization</div>
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:6px 12px;margin-top:10px;font-size:18px;line-height:1.3">
+        <b class="sc">Scale AI</b><span>Reconfigured resources toward the new KSFs</span>
+        <b class="ap">Appen</b><span>Valuable assets, configuration still built for volume</span>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 11–16; Scale AI (2024a, 2024b); OpenAI (2023); Appen Limited (2024e, 2025a). Interpretation follows the report's resource-based view (p. 15).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 2" data-time="0:40">Why did one firm adapt and the other struggle? Scale AI shows dynamic capabilities: it started with autonomous-driving data, moved into generative AI and RLHF, and by 2024 was doing model evaluation and government AI testing. Each time it sensed new demand and reconfigured its resources. Appen shows the opposite pattern, core rigidity. Its global crowd was the reason for its success, and the operating model built around volume made the move to expert tasks hard. But be careful: the network itself is still valuable. The rigidity is in how the work is organized around it. Relative to Slide 2, Scale moved toward the new key success factors; Appen's configuration is still built for the old one.</aside>
+</section>
+
+<!-- ===================== 09 BUSINESS STRATEGY ===================== -->
+<section class="slide" data-title="Business Strategy">
+  <div class="sh"><div class="sec"><b>Internal</b> · Business-level Strategy</div>
+  <h2>Scale AI Differentiates; Appen Needs Strategic Repositioning</h2></div>
+  <div class="bd">
+    <svg class="abs" style="left:0;top:0" width="1456" height="250" viewBox="0 0 1456 250" role="img" aria-label="Conceptual generic strategy positioning">
+      <defs>
+        <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#F4F6F9"/><line x1="0" y1="0" x2="0" y2="10" stroke="#DCE2E9" stroke-width="4"/></pattern>
+        <marker id="ar9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D97736"/></marker>
+      </defs>
+      <rect x="0" y="30" width="420" height="190" fill="#F4F6F9"/>
+      <rect x="436" y="30" width="520" height="190" fill="url(#hatch)"/>
+      <rect x="972" y="30" width="484" height="190" fill="#E7ECF3"/>
+      <text x="20" y="62" font-size="20" font-weight="700" fill="#202A36">Cost leadership</text>
+      <text x="20" y="86" font-size="16" fill="#687586">Lowest-cost position in the industry</text>
+      <text x="456" y="62" font-size="20" font-weight="700" fill="#202A36">Stuck in the middle</text>
+      <text x="456" y="86" font-size="16" fill="#687586">Neither lowest cost nor clear differentiation</text>
+      <text x="992" y="62" font-size="20" font-weight="700" fill="#172B49">Differentiation</text>
+      <text x="992" y="86" font-size="16" fill="#687586">Unique value: expertise, technology, quality</text>
+      <circle cx="1330" cy="130" r="16" fill="#316AC5"/>
+      <text x="1306" y="137" text-anchor="end" font-size="20" font-weight="800" fill="#316AC5">Scale AI</text>
+      <circle cx="680" cy="160" r="16" fill="#D97736"/>
+      <text x="704" y="167" font-size="20" font-weight="800" fill="#A9561F">Appen</text>
+      <path d="M784,166 C900,200 1000,200 1086,186" fill="none" stroke="#D97736" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#ar9)"/>
+      <circle cx="1104" cy="182" r="14" fill="#fff" stroke="#D97736" stroke-width="3" stroke-dasharray="4 3"/>
+      <text x="1126" y="178" font-size="16" font-weight="700" fill="#A9561F">Recommended:</text>
+      <text x="1126" y="198" font-size="16" font-weight="700" fill="#A9561F">multilingual GenAI niche</text>
+      <text x="0" y="244" font-size="14" fill="#687586">Conceptual positions based on the report's qualitative assessment; not measured coordinates.</text>
+    </svg>
+    <div class="abs scb" style="left:0;top:276px;width:700px;height:236px;padding:18px 24px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:26px;font-weight:800" class="sc">Scale AI</div><span class="tag blue">Differentiation</span></div>
+      <ul class="dots" style="font-size:21px;line-height:1.35;margin-top:12px">
+        <li>Advanced technology: RLHF, evaluation, red-teaming, enterprise AI</li>
+        <li>Specialized expertise from domain professionals</li>
+        <li>Competes on service quality rather than price</li>
+      </ul>
+    </div>
+    <div class="abs apb" style="left:756px;top:276px;width:700px;height:236px;padding:18px 24px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:26px;font-weight:800;color:var(--orange-t)">Appen</div><span class="tag orange">Stuck in the middle</span></div>
+      <ul class="dots" style="font-size:21px;line-height:1.35;margin-top:12px">
+        <li>2024 response: cost reduction (opex −33% in H1)</li>
+        <li>Incomplete differentiation versus expert-driven providers</li>
+        <li>Repositioning toward high-value GenAI services</li>
+      </ul>
+    </div>
+    <div class="abs" style="left:0;right:0;top:536px;height:66px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 24px;gap:20px">
+      <span style="font-size:24px;font-weight:800;white-space:nowrap">Cost reduction ≠ cost leadership</span>
+      <span style="font-size:19px;opacity:.9;line-height:1.3">Cutting costs helped Appen survive the Google loss, but it does not create a sustainable low-cost position.</span>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 15–16 (Porter generic strategies); Appen Limited (2024d, 2025b).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 2" data-time="0:35">At business level, Scale AI follows a differentiation strategy: advanced technology, specialized expertise and service quality instead of price. Appen was stuck in the middle: not the lowest-cost provider, and not differentiated like expert-driven providers. In 2024 it responded mainly with cost cuts, around one third of operating expenses. That improved EBITDA, but cost reduction is not the same as cost leadership. The arrow shows the direction we will recommend: a distinct differentiated niche in multilingual GenAI, not a copy of Scale's position. These positions are conceptual, not measured.</aside>
+</section>
+
+<!-- ===================== 10 CONGRUENCE ===================== -->
+<section class="slide" data-title="Congruence Model">
+  <div class="sh"><div class="sec"><b>Internal</b> · Congruence Model <span class="prio">Priority slide</span></div>
+  <h2>Organizational Alignment Explains the Difference in Strategic Execution</h2></div>
+  <div class="bd">
+    <style>
+      .cg{position:absolute;top:0;width:712px;height:566px;border:1px solid var(--line);background:#fff}
+      .cg .hdr{position:absolute;left:16px;right:16px;top:12px;display:flex;justify-content:space-between;align-items:center}
+      .cg .node{position:absolute;width:214px;height:74px;border:1.5px solid #9AA6B5;background:#fff;padding:7px 10px;display:flex;flex-direction:column;justify-content:center}
+      .cg .node .k{font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+      .cg .node .v{font-size:16.5px;font-weight:600;line-height:1.2;color:var(--text)}
+      .cg .node.st{border-width:2px}
+      .cg .call{position:absolute;left:16px;right:16px;bottom:14px;height:96px;padding:10px 14px;font-size:17.5px;line-height:1.32}
+      .cg .call b{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+    </style>
+    <!-- Scale AI -->
+    <div class="cg" style="left:0">
+      <div class="hdr"><span style="font-size:24px;font-weight:800" class="sc">Scale AI</span><span style="font-size:17px;font-weight:800;color:#fff;background:var(--blue);padding:4px 12px">High congruence</span></div>
+      <svg class="abs" style="left:0;top:0" width="712" height="460" viewBox="0 0 712 460" aria-hidden="true">
+        <g stroke="#8A97A8" stroke-width="2.5" fill="none">
+          <line x1="226" y1="97" x2="249" y2="97"/>
+          <line x1="356" y1="134" x2="356" y2="160"/>
+          <line x1="249" y1="197" x2="119" y2="262"/>
+          <line x1="463" y1="197" x2="593" y2="262"/>
+          <line x1="119" y1="336" x2="249" y2="401"/>
+          <line x1="593" y1="336" x2="463" y2="401"/>
+        </g>
+        <line x1="356" y1="234" x2="356" y2="364" stroke="#B4442C" stroke-width="3" stroke-dasharray="8 6"/>
+        <text x="366" y="304" font-size="14" font-weight="700" fill="#B4442C">friction</text>
+      </svg>
+      <div class="node" style="left:12px;top:60px"><span class="k">Leadership</span><span class="v">Founder-CEO Wang (FY2024)</span></div>
+      <div class="node st" style="left:249px;top:60px;border-color:var(--blue);background:var(--blue-l)"><span class="k">Strategy / vision</span><span class="v">Differentiation: expert "data foundry"</span></div>
+      <div class="node" style="left:249px;top:160px"><span class="k">Critical tasks</span><span class="v">Expert RLHF &amp; model evaluation</span></div>
+      <div class="node" style="left:12px;top:262px"><span class="k">Human resources</span><span class="v">Specialized contributors (SMEs)</span></div>
+      <div class="node" style="left:486px;top:262px"><span class="k">Culture</span><span class="v">Meritocracy (MEI), performance</span></div>
+      <div class="node" style="left:249px;top:364px"><span class="k">Formal organization</span><span class="v">Integrated platform; task timers</span></div>
+      <div class="call scb"><b class="sc">Friction</b>Rigid task limits and labor-management issues (Dec 2024 contractor lawsuit) may conflict with complex expert tasks.</div>
+    </div>
+    <!-- Appen -->
+    <div class="cg" style="left:744px">
+      <div class="hdr"><span style="font-size:24px;font-weight:800;color:var(--orange-t)">Appen</span><span style="font-size:17px;font-weight:800;color:#fff;background:var(--orange);padding:4px 12px">Partial congruence, improving</span></div>
+      <svg class="abs" style="left:0;top:0" width="712" height="460" viewBox="0 0 712 460" aria-hidden="true">
+        <g stroke="#8A97A8" stroke-width="2.5" fill="none">
+          <line x1="226" y1="97" x2="249" y2="97"/>
+          <line x1="356" y1="134" x2="356" y2="160"/>
+          <line x1="463" y1="197" x2="593" y2="262"/>
+          <line x1="119" y1="336" x2="249" y2="401"/>
+          <line x1="593" y1="336" x2="463" y2="401"/>
+        </g>
+        <g stroke="#B4442C" stroke-width="3" stroke-dasharray="8 6" fill="none">
+          <line x1="249" y1="197" x2="119" y2="262"/>
+          <line x1="356" y1="234" x2="356" y2="364"/>
+        </g>
+        <text x="96" y="226" font-size="14" font-weight="700" fill="#B4442C">mismatch</text>
+        <text x="366" y="304" font-size="14" font-weight="700" fill="#B4442C">mismatch</text>
+      </svg>
+      <div class="node" style="left:12px;top:60px"><span class="k">Leadership</span><span class="v">3 CEOs in 2 yrs; Kolln from Feb 2024</span></div>
+      <div class="node st" style="left:249px;top:60px;border-color:var(--orange);background:var(--orange-l)"><span class="k">Strategy / vision</span><span class="v">Repositioning: cost cuts + GenAI</span></div>
+      <div class="node" style="left:249px;top:160px"><span class="k">Critical tasks</span><span class="v">Shift to expert AI: RLHF &amp; evaluation</span></div>
+      <div class="node" style="left:12px;top:262px"><span class="k">Human resources</span><span class="v">Traditional crowd: 1M+, low pay</span></div>
+      <div class="node" style="left:486px;top:262px"><span class="k">Culture</span><span class="v">Cost-focused turnaround</span></div>
+      <div class="node" style="left:249px;top:364px"><span class="k">Formal organization</span><span class="v">Platform restructuring under way</span></div>
+      <div class="call apb"><b class="ap">Mismatch</b>Critical tasks are changing faster than the workforce and infrastructure, which were built for high-volume crowd work.</div>
+    </div>
+    <div class="abs" style="left:0;right:0;top:582px;display:flex;align-items:center;gap:22px;font-size:18px">
+      <span style="display:flex;align-items:center;gap:8px"><svg width="40" height="8"><line x1="0" y1="4" x2="40" y2="4" stroke="#8A97A8" stroke-width="3"/></svg>Aligned</span>
+      <span style="display:flex;align-items:center;gap:8px"><svg width="40" height="8"><line x1="0" y1="4" x2="40" y2="4" stroke="#B4442C" stroke-width="3" stroke-dasharray="8 6"/></svg>Major mismatch</span>
+      <span style="margin-left:auto;background:var(--navy);color:#fff;padding:8px 16px;font-weight:600">Link to VRIO "O" (Slide 7): <span style="color:#9DC0F5">Scale AI met</span> · <span style="color:#F5B98C">Appen partial</span></span>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 16–18 (Nadler–Tushman Congruence Model); Clarkson Law Firm (2024); Fox Business (2024); Appen Limited (2024a, 2024b, 2024d, 2024e, 2025b). Detail: Appendix A6.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 2" data-time="1:05">The Congruence Model explains the O in VRIO. It checks whether strategy, critical tasks, people, culture, formal organization and leadership fit together. Scale AI shows high congruence: a differentiation strategy, expert RLHF tasks, specialist contributors, a meritocratic culture, an integrated platform, and a founder-CEO driving all of it in FY2024. The red dashed line shows its weak point: rigid task timers and labor management, the December 2024 contractor lawsuit, can clash with complex expert work. Appen shows partial congruence that is improving. Its strategy and tasks now point toward expert AI work, but its workforce and platform were built for high-volume crowd work: two major mismatches. Add leadership turnover, three CEOs in two years, and a cost-focused culture, and you get an organization that cannot fully capture the value of its multilingual assets. That is why Appen's O is only partial. Presenter 3 will now take us to strategy.</aside>
+</section>
+
+<!-- ===================== 11 SWOT ===================== -->
+<section class="slide" data-title="SWOT &amp; Strategic Diagnosis">
+  <div class="sh"><div class="sec"><b>Synthesis</b> · SWOT &amp; Strategic Diagnosis</div>
+  <h2>Similar External Pressures Require Different Strategic Responses</h2></div>
+  <div class="bd">
+    <style>
+      .sw{position:absolute;left:0;right:0;display:grid;grid-template-columns:70px 1fr 1fr;gap:8px}
+      .sw .k{display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:var(--navy);background:var(--soft)}
+      .sw .c{padding:10px 16px;font-size:20px;line-height:1.3;display:flex;align-items:center}
+      .sw .c.span{grid-column:2 / 4}
+    </style>
+    <div class="abs" style="left:78px;top:0;width:680px;font-size:22px;font-weight:800" ><span class="sc">Scale AI</span></div>
+    <div class="abs" style="left:770px;top:0;font-size:22px;font-weight:800"><span class="ap">Appen</span></div>
+    <div class="abs" style="left:0;top:34px;right:0;font-size:14px;font-weight:700;letter-spacing:.1em;color:var(--navy);text-transform:uppercase;border-bottom:2px solid var(--navy);padding-bottom:4px">Internal · firm-specific: where the two firms diverge</div>
+    <div class="sw" style="top:66px;height:82px"><div class="k">S</div><div class="c scb">Integrated infrastructure and expert capabilities</div><div class="c apb">Global multilingual network and local expertise</div></div>
+    <div class="sw" style="top:156px;height:82px"><div class="k">W</div><div class="c scb">Labor-management friction, expert costs, customer concentration</div><div class="c apb">Crowd-centered operations, legacy infrastructure, customer concentration</div></div>
+    <div class="abs" style="left:0;top:256px;right:0;font-size:14px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;border-bottom:2px solid var(--line);padding-bottom:4px">External · broadly shared environment</div>
+    <div class="sw" style="top:288px;height:74px"><div class="k">O</div><div class="c" style="background:var(--soft)">GenAI, model evaluation, public-sector demand</div><div class="c" style="background:var(--soft)">Multilingual GenAI and localization</div></div>
+    <div class="sw" style="top:370px;height:74px"><div class="k">T</div><div class="c span" style="background:var(--soft);justify-content:space-between;gap:20px"><span><b>Shared:</b> automation &amp; synthetic data · buyer power and in-housing · labor &amp; privacy regulation</span><span style="font-size:17px;color:var(--muted);white-space:nowrap">Appen more exposed (manual crowd)</span></div></div>
+    <div class="abs" style="left:0;right:0;top:466px;height:96px;display:grid;grid-template-columns:70px 1fr 1fr;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--navy);text-transform:uppercase;text-align:center;line-height:1.2">Diag&shy;nosis</div>
+      <div style="background:var(--blue);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 22px"><span style="font-size:15px;opacity:.85;text-transform:uppercase;letter-spacing:.08em">Scale AI</span><span style="font-size:28px;font-weight:800">Sustain competitive advantage</span></div>
+      <div style="background:var(--orange);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 22px"><span style="font-size:15px;opacity:.9;text-transform:uppercase;letter-spacing:.08em">Appen</span><span style="font-size:28px;font-weight:800">Rebuild competitive advantage</span></div>
+    </div>
+    <div class="abs" style="left:0;right:0;top:578px;font-size:19px;color:var(--text)">The environment is largely common; the internal starting points are not. Each recommendation on the next slides traces back to a cell above.</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 19–22 (SWOT analyses). Detail: Appendix A7.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 3" data-time="0:30">The SWOT pulls everything together. The external row is largely shared: both firms see GenAI demand, and both face automation, strong buyers and stricter labor and privacy regulation, though Appen is more exposed because of its manual crowd model. The internal rows are where they differ: Scale has integrated infrastructure and experts but labor friction and concentration; Appen has a unique multilingual network but crowd-centered operations and legacy systems. So the diagnosis differs: Scale must sustain its advantage, Appen must rebuild one.</aside>
+</section>
+
+<!-- ===================== 12 SCALE RECS ===================== -->
+<section class="slide" data-title="Strategic Suggestions for Scale AI">
+  <div class="sh"><div class="sec"><b>Recommendations</b> · Scale AI · Sustain <span class="prio">Key slide</span></div>
+  <h2>Scale AI Should Reinforce Its Advantage While Managing Growth Risks</h2></div>
+  <div class="bd">
+    <style>
+      .rc{position:absolute;left:0;right:0;display:grid;grid-template-columns:280px 30px 300px 30px 1fr 30px 270px;align-items:stretch}
+      .rc .ar{display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--muted)}
+      .rc .t{padding:12px 16px;display:flex;flex-direction:column;justify-content:center}
+      .rc .t .n{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+      .rc .t .h{font-size:22px;font-weight:800;line-height:1.2;margin-top:4px}
+      .rc .b{padding:10px 14px;font-size:18.5px;line-height:1.3;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--line)}
+      .rc .b .s{font-size:14px;font-weight:600;color:var(--muted);margin-top:6px}
+      .rc ul{margin:0;padding-left:20px;font-size:18.5px;line-height:1.32}
+      .rc .o{padding:10px 14px;font-size:19px;font-weight:700;line-height:1.3;display:flex;align-items:center}
+      .rch{position:absolute;left:0;right:0;top:0;display:grid;grid-template-columns:280px 30px 300px 30px 1fr 30px 270px;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    </style>
+    <div class="rch"><span>Recommendation</span><span></span><span>Analysis basis</span><span></span><span>Action</span><span></span><span>Expected outcome</span></div>
+    <div class="rc" style="top:30px;height:180px">
+      <div class="t scb"><span class="n sc">R1</span><span class="h" style="color:var(--navy)">Expand generative AI differentiation</span></div><div class="ar">→</div>
+      <div class="b"><span><b>VRIO advantage</b> in RLHF &amp; evaluation + <b>GenAI opportunity</b></span><span class="s">Slides 7, 11</span></div><div class="ar">→</div>
+      <div class="b"><ul><li>Recurring model-evaluation and red-teaming contracts</li><li>Dedicated expert pools by domain (law, medicine, finance, coding)</li><li>Continuous AI improvement services</li></ul></div><div class="ar">→</div>
+      <div class="o scb" style="color:var(--navy)">Stronger differentiation and recurring revenue</div>
+    </div>
+    <div class="rc" style="top:224px;height:180px">
+      <div class="t scb"><span class="n sc">R2</span><span class="h" style="color:var(--navy)">Strengthen labor compliance and operational efficiency</span></div><div class="ar">→</div>
+      <div class="b"><span><b>Congruence gap</b> (task limits, contributor friction) + <b>labor-regulation threat</b></span><span class="s">Slides 10, 11</span></div><div class="ar">→</div>
+      <div class="b"><ul><li>Review worker classification and compensation; audit subcontractors</li><li>Assign experts selectively to complex tasks</li><li>Automate routine tasks</li></ul></div><div class="ar">→</div>
+      <div class="o scb" style="color:var(--navy)">Lower legal risk and better operating efficiency</div>
+    </div>
+    <div class="rc" style="top:418px;height:180px">
+      <div class="t scb"><span class="n sc">R3</span><span class="h" style="color:var(--navy)">Diversify the customer portfolio</span></div><div class="ar">→</div>
+      <div class="b"><span><b>Strong buyer power</b> + <b>customer concentration</b> among frontier labs</span><span class="s">Slides 3, 11</span></div><div class="ar">→</div>
+      <div class="b"><ul><li>Expand existing government and defense work</li><li>Win enterprise clients across industries</li><li>Strengthen data security and privacy compliance</li></ul></div><div class="ar">→</div>
+      <div class="o scb" style="color:var(--navy)">Reduced concentration risk</div>
+    </div>
+    <div class="abs" style="left:0;right:0;top:610px;font-size:18px;color:var(--muted)">Logic: protect the VRIO-certified capability (R1), close the one congruence gap (R2), and reduce exposure to the strongest force (R3).</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report p. 23 (Scale AI Solutions 1–3); Clarkson Law Firm (2024).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 3" data-time="1:15">Scale AI's task is to sustain its advantage. Each recommendation comes from a finding. First, since RLHF and evaluation is its only capability meeting all four VRIO criteria and GenAI demand is growing, Scale should package model evaluation and red-teaming as recurring services and organize experts into dedicated domain pools. That keeps tasks, people and structure aligned. Second, the Congruence Model showed friction with contributors, and labor regulation is a threat. So Scale should review worker classification and pay, audit subcontractors, use experts only where expertise is needed, and automate routine work: lower legal risk and lower cost. Third, buyer power is strong and revenue depends on a few frontier labs. Scale should grow its existing government and defense work, win enterprise clients in other industries, and invest in data security and privacy to earn their trust.</aside>
+</section>
+
+<!-- ===================== 13 APPEN RECS ===================== -->
+<section class="slide" data-title="Strategic Suggestions for Appen">
+  <div class="sh"><div class="sec"><b>Recommendations</b> · Appen · Rebuild <span class="prio">Most important</span></div>
+  <h2>Appen Should Build Differentiation Around Its Existing Multilingual Assets</h2></div>
+  <div class="bd">
+    <div class="rch"><span>Recommendation</span><span></span><span>Analysis basis</span><span></span><span>Action</span><span></span><span>Expected outcome</span></div>
+    <div class="rc" style="top:28px;height:156px">
+      <div class="t apb"><span class="n ap">R1</span><span class="h">Reconfigure the workforce for specialized AI</span></div><div class="ar">→</div>
+      <div class="b"><span><b>Core rigidity</b> + <b>HR–task mismatch</b></span><span class="s">Slides 8, 10</span></div><div class="ar">→</div>
+      <div class="b"><ul style="font-size:17.5px;line-height:1.27"><li><b>Build–Borrow–Buy → Borrow:</b> non-equity alliances with universities and professional associations</li><li>Train existing contributors; tiered workforce (crowd for general, experts for complex)</li><li>Fair pay and realistic deadlines</li></ul></div><div class="ar">→</div>
+      <div class="o apb">Move beyond low-margin tasks; better quality and motivation</div>
+    </div>
+    <div class="rc" style="top:194px;height:140px">
+      <div class="t apb"><span class="n ap">R2</span><span class="h">Shift toward multilingual differentiation</span></div><div class="ar">→</div>
+      <div class="b"><span><b>Stuck in the middle</b> + <b>valuable multilingual resources</b></span><span class="s">Slides 7, 9</span></div><div class="ar">→</div>
+      <div class="b"><ul style="font-size:17.5px;line-height:1.27"><li>Focus on high-value multilingual LLM evaluation</li><li>Reinvest cost savings into AI technology and the platform</li><li>Judge performance on quality and high-value revenue, not only cost</li></ul></div><div class="ar">→</div>
+      <div class="o apb">Exit the middle; sustainable differentiation</div>
+    </div>
+    <div class="rc" style="top:344px;height:140px">
+      <div class="t apb"><span class="n ap">R3</span><span class="h">Diversify clients and the revenue model</span></div><div class="ar">→</div>
+      <div class="b"><span><b>Google termination</b> + <b>buyer power</b> + <b>global contributor network</b></span><span class="s">Slides 3, 5, 7</span></div><div class="ar">→</div>
+      <div class="b"><ul style="font-size:17.5px;line-height:1.27"><li>Target mid-market enterprises, healthcare and finance</li><li>Use in-country workers for Sovereign AI projects</li><li>Recurring contracts via Quality Flow and Build My RAG</li></ul></div><div class="ar">→</div>
+      <div class="o apb">Lower concentration risk; more predictable revenue</div>
+    </div>
+    <div class="abs" style="left:0;right:0;top:500px;height:110px;display:grid;grid-template-columns:repeat(3,1fr) 1.35fr;gap:10px">
+      <div style="border-top:4px solid var(--orange);background:var(--soft);padding:10px 14px"><div style="font-size:26px;font-weight:800;color:var(--navy)" class="num">1M+ · 170+ · 500+</div><div style="font-size:16px">contributors · countries · languages</div></div>
+      <div style="border-top:4px solid var(--orange);background:var(--soft);padding:10px 14px"><div style="font-size:26px;font-weight:800;color:var(--navy)" class="num">37</div><div style="font-size:16px">new customers in China, Japan and Korea, H1 2024</div></div>
+      <div style="border-top:4px solid var(--orange);background:var(--soft);padding:10px 14px"><div style="font-size:26px;font-weight:800;color:var(--navy)" class="num">+16.0%</div><div style="font-size:16px">non-Google revenue growth, FY2024</div></div>
+      <div style="background:var(--navy);color:#fff;padding:12px 18px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:21px;font-weight:800">Don't imitate Scale AI.</div><div style="font-size:17px;line-height:1.3;opacity:.92;margin-top:4px">Compete where Appen's language network is hardest to copy.</div></div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report p. 24 (Appen Solutions 1–3); Appen Limited (2024e, 2025a, 2025b). Build–Borrow–Buy framing as stated in the report.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 3" data-time="1:30">Appen is our most important case, because it needs to rebuild. The key principle: Appen should not copy Scale AI. It should build on what it already has. First, the workforce. Core rigidity and the HR–task mismatch say Appen's crowd is not set up for expert work. With limited resources, building experts in-house or buying a firm is too slow or too costly, so Appen should borrow: non-equity alliances with universities and professional associations. It should also train existing contributors and create a tiered workforce, crowd for general tasks and experts for complex ones, with fair pay and realistic deadlines. Second, positioning. Appen is stuck in the middle but owns valuable multilingual resources, so it should focus on high-value multilingual LLM evaluation, reinvest its cost savings in technology, and measure managers on quality and high-value revenue, not just cost. Third, clients. The Google loss and strong buyer power show the danger of concentration. Appen should target mid-market, healthcare and finance, use in-country contributors for Sovereign AI projects, and move to recurring contracts through Quality Flow and Build My RAG. The evidence: one million contributors in 170 countries and 500 languages, 37 new customers in China, Japan and Korea in the first half of 2024, and non-Google revenue up 16%.</aside>
+</section>
+
+<!-- ===================== 14 IMPLEMENTATION ===================== -->
+<section class="slide" data-title="Strategic Implementation &amp; Comparison">
+  <div class="sh"><div class="sec"><b>Implementation</b> · Proposed Roadmap &amp; KPIs</div>
+  <h2>Two Firms Require Two Different Transformation Paths</h2></div>
+  <div class="bd">
+    <div class="abs" style="left:0;right:0;top:-6px;display:flex;align-items:center;gap:12px"><span class="tag ghost" style="border-color:var(--navy);color:var(--navy)">Proposed by the team</span><span style="font-size:16px;color:var(--muted)">Implementation sequence and KPIs are our proposals; they are not historical company data and not quoted from the report.</span></div>
+    <style>
+      .rm{position:absolute;top:36px;width:712px}
+      .rm .hd{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;color:#fff}
+      .rm .ph{display:grid;grid-template-columns:110px 1fr;border:1px solid var(--line);border-top:0;min-height:62px}
+      .rm .ph .p{display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+      .rm .ph .x{display:flex;align-items:center;padding:8px 16px;font-size:20px;font-weight:600}
+    </style>
+    <div class="rm" style="left:0">
+      <div class="hd" style="background:var(--blue)"><span style="font-size:22px;font-weight:800">Scale AI</span><span style="font-size:17px;font-weight:700">Reinforce &amp; sustain</span></div>
+      <div class="ph"><div class="p scb sc">Phase 1</div><div class="x">Labor compliance and task-allocation efficiency</div></div>
+      <div class="ph"><div class="p scb sc">Phase 2</div><div class="x">Expand specialized model-evaluation services</div></div>
+      <div class="ph"><div class="p scb sc">Phase 3</div><div class="x">Diversify government and enterprise clients</div></div>
+    </div>
+    <div class="rm" style="left:744px">
+      <div class="hd" style="background:var(--orange)"><span style="font-size:22px;font-weight:800">Appen</span><span style="font-size:17px;font-weight:700">Reconfigure &amp; reposition</span></div>
+      <div class="ph"><div class="p apb ap">Phase 1</div><div class="x">Expert alliances and contributor training</div></div>
+      <div class="ph"><div class="p apb ap">Phase 2</div><div class="x">Multilingual LLM evaluation and platform improvements</div></div>
+      <div class="ph"><div class="p apb ap">Phase 3</div><div class="x">Customer diversification and recurring contracts</div></div>
+    </div>
+    <div class="abs" style="left:0;right:0;top:296px;font-size:15px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600">Why this order: fix the fit first (Congruence), then scale the differentiated offer (VRIO), then diversify (Five Forces)</div>
+    <table class="abs" style="left:0;top:330px;width:1456px;border-collapse:collapse;font-size:20px">
+      <thead><tr style="font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)"><th style="text-align:left;padding:8px 12px;width:210px;border-bottom:2px solid var(--navy)">Proposed KPI</th><th style="text-align:left;padding:8px 12px;border-bottom:2px solid var(--blue)" class="sc">Scale AI</th><th style="text-align:left;padding:8px 12px;border-bottom:2px solid var(--orange)" class="ap">Appen</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 12px;font-weight:700;color:var(--navy)">Growth quality</td><td style="padding:10px 12px">Recurring contract revenue share</td><td style="padding:10px 12px">High-value GenAI revenue share</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 12px;font-weight:700;color:var(--navy)">Operations</td><td style="padding:10px 12px">Expert-task unit cost</td><td style="padding:10px 12px">Evaluation accuracy</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 12px;font-weight:700;color:var(--navy)">People</td><td style="padding:10px 12px">Labor compliance metrics</td><td style="padding:10px 12px">Expert-qualified contributor ratio</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 12px;font-weight:700;color:var(--navy)">Risk</td><td style="padding:10px 12px">Customer concentration</td><td style="padding:10px 12px">Customer concentration</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sf"><span class="src">Proposed implementation measures derived from Slides 12–13 and Report pp. 23–24. Not company guidance or historical data.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 3" data-time="0:45">To make this actionable, we propose two different paths. These phases and KPIs are our own proposals, not company data. Scale AI reinforces: first fix labor compliance and task allocation, then expand evaluation services, then diversify into government and enterprise. Appen reconfigures: first expert alliances and training, then multilingual LLM evaluation and platform upgrades, then diversification and recurring contracts. The logic of the order is the same for both: fix organizational fit first, then scale the differentiated offer, then reduce dependence on a few buyers. The KPIs measure exactly the weaknesses we found, and customer concentration is a shared KPI because both firms face strong buyers.</aside>
+</section>
+
+<!-- ===================== 15 CONCLUSION ===================== -->
+<section class="slide" data-title="Conclusion">
+  <div class="sh"><div class="sec"><b>Conclusion</b></div>
+  <h2>Competitive Advantage Depends on Strategic Adaptation and Organizational Fit</h2></div>
+  <div class="bd">
+    <style>
+      .cl{position:absolute;left:0;right:0;display:grid;grid-template-columns:220px 1fr;border-top:1px solid var(--line)}
+      .cl .k{font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:20px}
+      .cl .v{font-size:27px;font-weight:600;color:var(--text);padding:16px 0;line-height:1.3}
+    </style>
+    <div class="cl" style="top:0"><div class="k">Industry level</div><div class="v">AI changes the sources of competitive advantage.</div></div>
+    <div class="cl" style="top:86px"><div class="k">Firm level</div><div class="v">Resource reconfiguration and organizational fit help explain the different outcomes.</div></div>
+    <div class="cl" style="top:172px;border-bottom:1px solid var(--line)"><div class="k">Strategy level</div><div class="v" style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><span><b class="sc">Scale AI</b> should sustain its advantage.</span><span><b class="ap">Appen</b> should rebuild its advantage.</span></div></div>
+    <div class="abs" style="left:0;right:0;top:300px;height:210px;background:var(--navy);color:#fff;padding:30px 44px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:14px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;font-weight:600">Final takeaway</div>
+      <div style="font-size:32px;font-weight:700;line-height:1.3;margin-top:10px">Competitive advantage in the AI era depends not only on the resources a firm possesses, but on how effectively it reconfigures and aligns them with changing industry demands.</div>
+    </div>
+    <div class="abs" style="left:0;right:0;top:540px;font-size:16px;color:var(--muted);line-height:1.4">Scope note: this analysis covers FY2024. Scale AI's 2025 ownership and leadership change (Meta's 49% stake; Alexandr Wang's move to Meta) is a post-period development and would require a follow-up review of its leadership fit and client relationships.</div>
+    <div class="abs" style="right:0;top:600px;font-size:20px;font-weight:700;color:var(--navy)">Thank you · Questions welcome</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report p. 25; post-period note: Capoot (2025), Mehta (2025), O'Brien (2025).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Presenter 3" data-time="0:30">To conclude on three levels. At industry level, AI changed what creates advantage: expertise, technology, quality and organization instead of labor scale. At firm level, Scale reconfigured and aligned its resources, while Appen's operating model held it back, on top of the Google loss. At strategy level, Scale should sustain and Appen should rebuild. Our final message: in the AI era, advantage depends less on what you own than on how well you reconfigure and align it. Thank you; we welcome your questions.</aside>
+</section>
+
+<!-- ===================== APPENDIX ===================== -->
+<section class="slide appx" data-title="A1 Full PESTEL Analysis">
+  <div class="sh"><div class="sec"><b>Appendix A1</b> · Full PESTEL Analysis</div>
+  <h2>Macro Trends Favor Expert, Compliant Providers over Cross-Border Crowds</h2></div>
+  <div class="bd">
+    <style>
+      .pe{position:absolute;top:0;width:233px;height:560px;border-top:5px solid var(--navy);background:var(--soft);padding:14px 14px}
+      .pe h4{margin:0 0 10px;font-size:20px;color:var(--navy)}
+      .pe ul{margin:0;padding-left:18px;font-size:18px;line-height:1.38}
+      .pe li{margin-bottom:9px}
+    </style>
+    <div class="pe" style="left:0"><h4>Political</h4><ul><li>AI techno-nationalism and data-sovereignty rules restrict offshore data and labor</li><li>Geopolitical labor risk in gig networks raises compliance costs</li><li>Government AI subsidies and public datasets (US, EU, Korea)</li></ul></div>
+    <div class="pe" style="left:244px"><h4>Economic</h4><ul><li>GenAI capital inflow drives expert data demand: market $3.188B, +25.2% (2024)</li><li>Cost pressure favors hybrid auto-label + human review</li><li>FX (Appen pays globally) and funding climate (Scale raised ≈$1B in 2024)</li></ul></div>
+    <div class="pe" style="left:488px"><h4>Socio-cultural</h4><ul><li>Concern over hallucination and bias raises the value of diverse, human-verified data</li><li>Fair-labor issues in the gig economy raise ESG risk</li></ul></div>
+    <div class="pe" style="left:732px"><h4>Technological</h4><ul><li>Shift to RLHF and subject-matter-expert labeling (coding, medicine, law)</li><li>Synthetic data and auto-labeling raise productivity but threaten manual labeling</li></ul></div>
+    <div class="pe" style="left:976px"><h4>Environmental</h4><ul><li>Data-center energy use from large multimodal datasets (limited direct impact)</li><li>Clients demand greener infrastructure and ESG compliance</li></ul></div>
+    <div class="pe" style="left:1220px;width:236px"><h4>Legal</h4><ul><li>Copyright suits (e.g., NYT v. OpenAI) require licensed, traceable pipelines</li><li>Unclear IP ownership of annotated data</li><li>GDPR / CCPA: PII de-identification and consent</li></ul></div>
+    <div class="take" style="font-size:20px">Opportunities: RLHF and expert labeling, public AI investment, bias mitigation. Threats to crowd models: data sovereignty, labor regulation, synthetic data.</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 3–4; MarketLine (2025); Sawers (2024); McKool Smith (2024).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for questions on the macro environment.</aside>
+</section>
+
+<section class="slide appx" data-title="A2 Detailed Five Forces">
+  <div class="sh"><div class="sec"><b>Appendix A2</b> · Detailed Five Forces Analysis</div>
+  <h2>Strong Buyers and Rivalry Cap Profitability; Experts Gain Leverage</h2></div>
+  <div class="bd">
+    <table style="width:100%;border-collapse:collapse;font-size:19px;line-height:1.3">
+      <thead><tr style="font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left"><th style="padding:8px 10px;border-bottom:2px solid var(--navy);width:200px">Force</th><th style="padding:8px 10px;border-bottom:2px solid var(--navy);width:170px">FY2024</th><th style="padding:8px 10px;border-bottom:2px solid var(--navy)">Key drivers (2024)</th><th style="padding:8px 10px;border-bottom:2px solid var(--navy);width:340px">2025–2029 outlook</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Threat of entry</td><td style="padding:10px">Moderate–Strong</td><td style="padding:10px">Basic labeling needs little capital (tools, crowd platforms, low-cost regions); enterprise QA, security and expert tasks raise barriers</td><td style="padding:10px">Barriers rise in specialized segment</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Supplier power</td><td style="padding:10px">Moderate</td><td style="padding:10px">Abundant crowd workers have little power; domain experts are hard to replace; cloud providers (AWS, Azure, Google Cloud) affect costs</td><td style="padding:10px">Specialized-expert power increases</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Buyer power</td><td style="padding:10px">Strong</td><td style="padding:10px">Many providers to compare; Big Tech can build in-house; demands for accuracy, security, cost; customization raises some switching costs</td><td style="padding:10px">Remains strong (in-house data operations)</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Threat of substitutes</td><td style="padding:10px">Moderate</td><td style="padding:10px">AI pre-labeling, synthetic data, self-/semi-supervised learning; human review still needed for complex cases</td><td style="padding:10px">Strengthens as automation improves</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Rivalry</td><td style="padding:10px">Strong</td><td style="padding:10px">Monopolistic competition; price competition in basic labeling; differentiation via technology, QA, expertise, security</td><td style="padding:10px">Intensifies; competition on technology and quality rather than labor scale</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Complements</td><td style="padding:10px">—</td><td style="padding:10px">Cloud computing, AI development platforms, data-management tools raise demand for quality data</td><td style="padding:10px">—</td></tr>
+      </tbody>
+    </table>
+    <div class="take" style="font-size:20px">Overall attractiveness: Medium. Firms with advanced technology, expertise and high-quality services can still earn advantage.</div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 5–8; MarketLine (2025).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for questions on the industry analysis.</aside>
+</section>
+
+<section class="slide appx" data-title="A3 Full Financial Performance">
+  <div class="sh"><div class="sec"><b>Appendix A3</b> · Full Financial Performance Table</div>
+  <h2>Five-Year Trend and FY2024 Peer Ratios</h2></div>
+  <div class="bd">
+    <style>
+      .ft{border-collapse:collapse;font-size:17px;font-variant-numeric:tabular-nums}
+      .ft td,.ft th{padding:6px 10px;border-bottom:1px solid var(--line)}
+      .ft th{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;border-bottom:2px solid var(--navy)}
+      .ft td{text-align:right}
+      .ft td:first-child,.ft th:first-child{text-align:left}
+      .ft .grp td{background:var(--soft);font-weight:700;text-align:left;color:var(--navy)}
+    </style>
+    <table class="ft abs" style="left:0;top:0;width:860px">
+      <thead><tr><th>Metric</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="6">Industry: global data collection &amp; labeling</td></tr>
+        <tr><td>Market size (US$ M)</td><td>—</td><td>—</td><td>—</td><td>≈2,546</td><td>3,188</td></tr>
+        <tr><td>Market growth (%)</td><td colspan="4" style="text-align:center">CAGR 2019–2024: 24.9%</td><td>25.2</td></tr>
+        <tr class="grp"><td colspan="6" style="color:var(--blue)">Scale AI (private; third-party estimates)</td></tr>
+        <tr><td>Revenue (US$ M)</td><td>≈100</td><td>≈180</td><td>≈290</td><td>≈760</td><td>≈870</td></tr>
+        <tr><td>Revenue growth (%)</td><td>—</td><td>≈80</td><td>≈61</td><td>≈162</td><td>≈14.5</td></tr>
+        <tr><td>Revenue ÷ industry size (%)</td><td>—</td><td>—</td><td>—</td><td>≈29.9</td><td>≈27.3</td></tr>
+        <tr><td>Full-time employees</td><td>—</td><td>—</td><td>—</td><td>—</td><td>≈1,400</td></tr>
+        <tr><td>Revenue / employee (US$ K)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>≈621</td></tr>
+        <tr class="grp"><td colspan="6" style="color:var(--orange-t)">Appen (ASX-listed)</td></tr>
+        <tr><td>Revenue (US$ M)</td><td>412.7</td><td>447.3</td><td>388.5</td><td>273.0</td><td>234.3</td></tr>
+        <tr><td>Revenue growth (%)</td><td>—</td><td>+8.4</td><td>−13.1</td><td>−29.7</td><td>−14.2</td></tr>
+        <tr><td>Revenue ÷ industry size (%)</td><td>—</td><td>—</td><td>—</td><td>≈10.7</td><td>≈7.3</td></tr>
+        <tr><td>Employees (year-end)</td><td>1,125</td><td>1,265</td><td>1,475</td><td>1,037</td><td>1,171</td></tr>
+        <tr><td>Revenue / employee (US$ K)</td><td>366.8</td><td>353.6</td><td>263.4</td><td>263.3</td><td>200.1</td></tr>
+      </tbody>
+    </table>
+    <div class="abs" style="left:900px;top:0;right:0">
+      <div style="font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px">FY2024 annual ratios</div>
+      <table class="ft" style="width:100%">
+        <thead><tr><th>Company</th><th>Revenue</th><th>Growth %</th><th>Op. margin %</th></tr></thead>
+        <tbody>
+          <tr><td class="sc" style="font-weight:700">Scale AI</td><td>$870M</td><td>+14.5</td><td>private</td></tr>
+          <tr><td class="ap" style="font-weight:700">Appen</td><td>$234.3M</td><td>−14.2</td><td>−8.4</td></tr>
+          <tr><td>Atos</td><td>€9,577M</td><td>−5.4</td><td>+2.1</td></tr>
+          <tr><td>Teleperformance</td><td>€10,280M</td><td>+23.19</td><td>+10.53</td></tr>
+          <tr><td>TELUS Digital</td><td>$2,658M</td><td>−1.85</td><td>+4.4</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:14px;color:var(--muted);line-height:1.45;margin-top:12px">Other Appen FY2024: net loss US$20.0M; underlying EBITDA before FX +$3.5M (2023: −$20.4M); non-Google revenue +16.0%; New Markets revenue +42.6% to $116.2M; H1 2024 revenue $113.4M (−18%), opex −33%.</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.45;margin-top:10px">Notes: Scale AI figures are third-party estimates. Employee counts exclude crowd workers. "Revenue ÷ industry size" is a rough upper-bound proxy, not verified market share. Operating margin = EBIT ÷ revenue (Atos: company-defined).</div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 10–11, 15–18; Sacra (n.d.); MarketLine (2025); Appen Limited (2024d, 2025a, 2025b); Stock Analysis (n.d.); company FY2024 annual reports.</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for financial questions. Stress that Scale AI numbers are estimates and profitability is undisclosed.</aside>
+</section>
+
+<section class="slide appx" data-title="A4 Detailed Value Chains">
+  <div class="sh"><div class="sec"><b>Appendix A4</b> · Detailed Value Chains</div>
+  <h2>Activity-Level Detail Behind the Value Chain Comparison</h2></div>
+  <div class="bd">
+    <table style="width:100%;border-collapse:collapse;font-size:17px;line-height:1.3">
+      <thead><tr style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:left"><th style="padding:6px 10px;border-bottom:2px solid var(--navy);width:200px;color:var(--muted)">Activity</th><th style="padding:6px 10px;border-bottom:2px solid var(--blue)" class="sc">Scale AI</th><th style="padding:6px 10px;border-bottom:2px solid var(--orange)" class="ap">Appen</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Inbound logistics</td><td style="padding:7px 10px">Clients supply raw data or define labeling, evaluation, RLHF or red-teaming tasks (AI developers, enterprises, public sector)</td><td style="padding:7px 10px">Recruits 1M+ contributors worldwide to collect, transcribe, translate and label data; strong multilingual coverage</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Operations</td><td style="padding:7px 10px">Software + managed workflows + expert labor; APIs, QC systems, detailed guidelines standardize complex tasks</td><td style="padding:7px 10px">Platform tasks reviewed for quality; reports of very short time limits for verification tasks (not generalizable)</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Outbound logistics</td><td style="padding:7px 10px">Training datasets, RLHF data, model evaluations, red-teaming, deployment tools: an integrated data system</td><td style="padding:7px 10px">Datasets, translation and speech data, model evaluation, enterprise AI tools; new RLHF, Document Intelligence, Automated NLP Labeling</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Marketing &amp; sales</td><td style="padding:7px 10px">High-value customers; moved from autonomous driving to GenAI and government/defense; Meta joined May 2024 Series F</td><td style="padding:7px 10px">Historically dependent on Google; loss forced diversification; GenAI revenue growing but enterprise sales still weak</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Service</td><td style="padding:7px 10px">Continuous evaluation, expert verification, red-teaming: long-term relationships</td><td style="padding:7px 10px">More project-based and crowd-centered; RLHF and Document Intelligence can support continuous improvement</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Technology dev.</td><td style="padding:7px 10px">Tools for labeling, RLHF, evaluation, AI safety</td><td style="padding:7px 10px">Quality Flow, Build My RAG, RLHF, Document Intelligence, Automated NLP Labeling</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Information systems</td><td style="padding:7px 10px">Platform coordinates global workers, tracks quality, delivers via API: a main advantage</td><td style="padding:7px 10px">Task-assignment platform; rebuild needed to cut errors and support complex projects</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Human resources</td><td style="padding:7px 10px">Managed workers plus experts (PhDs, lawyers, accountants) for high-stakes tasks</td><td style="padding:7px 10px">Flexible, language-diverse crowd; quality control, fair pay and retention are difficult</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 10px;font-weight:700">Firm infrastructure</td><td style="padding:7px 10px">Strong financing and partnerships; demanding guidelines and expert labor raise costs</td><td style="padding:7px 10px">Opex −33% in H1 2024; restructuring after Google loss</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 11–13; Alba (2023); The Register (2023); Kolln (2024); Wang (2024); Appen Limited (2024c, 2024d).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for value chain questions.</aside>
+</section>
+
+<section class="slide appx" data-title="A5 Full VRIO Matrix">
+  <div class="sh"><div class="sec"><b>Appendix A5</b> · Full VRIO Matrix</div>
+  <h2>Criterion-by-Criterion Rationale for the VRIO Ratings</h2></div>
+  <div class="bd">
+    <table style="width:100%;border-collapse:collapse;font-size:19px;line-height:1.34">
+      <thead><tr style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:left"><th style="padding:8px 10px;border-bottom:2px solid var(--navy);width:190px;color:var(--muted)">Criterion</th><th style="padding:8px 10px;border-bottom:2px solid var(--blue)" class="sc">Scale AI</th><th style="padding:8px 10px;border-bottom:2px solid var(--orange)" class="ap">Appen</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Valuable</td><td style="padding:10px">Skilled workers + software + QC; RLHF and evaluation improve model performance and safety</td><td style="padding:10px">Global contributor network and multilingual/speech data; AI models need large volumes of language data</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Rare</td><td style="padding:10px">Rare mix of experts, systems and lab relationships (OpenAI partnership; government evaluation); client relationships only partly rare</td><td style="padding:10px">Network relatively rare, especially for less common languages; traditional crowdsourcing is not unique</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Costly to imitate</td><td style="padding:10px">Complex training and evaluation require knowledge, experienced workers, QC and long project history; basic labeling is imitable</td><td style="padding:10px">Global language networks take time to build; basic labeling is easy to reproduce</td></tr>
+        <tr style="border-bottom:1px solid var(--line);background:var(--navy-l)"><td style="padding:10px;font-weight:700">Organized</td><td style="padding:10px">Integrated approach coordinates human expertise and technical systems efficiently</td><td style="padding:10px">Google exit (notified Jan, ended 19 Mar 2024) exposed gaps in delivery, crowd management, leadership, sales and marketing</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px;font-weight:700">Implication</td><td style="padding:10px"><b>RLHF &amp; evaluation:</b> sustained advantage. <b>Workforce, clients:</b> at most temporary.</td><td style="padding:10px"><b>Multilingual &amp; speech:</b> temporary, not fully captured. <b>Crowdsourcing:</b> competitive parity. Crowd model turned from core competency into core rigidity.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 14–15; Scale AI (2024b); OpenAI (2023); Appen Limited (2024a).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for VRIO questions.</aside>
+</section>
+
+<section class="slide appx" data-title="A6 Full Congruence Model">
+  <div class="sh"><div class="sec"><b>Appendix A6</b> · Full Congruence Model</div>
+  <h2>Component-Level Fit Assessment, FY2024</h2></div>
+  <div class="bd">
+    <table style="width:100%;border-collapse:collapse;font-size:17px;line-height:1.3">
+      <thead><tr style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:left"><th style="padding:8px 10px;border-bottom:2px solid var(--navy);width:190px;color:var(--muted)">Component</th><th style="padding:8px 10px;border-bottom:2px solid var(--blue)" class="sc">Scale AI</th><th style="padding:8px 10px;border-bottom:2px solid var(--orange)" class="ap">Appen</th><th style="padding:8px 10px;border-bottom:2px solid var(--navy);width:300px;color:var(--muted)">Fit gap</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px;font-weight:700">Strategy</td><td style="padding:9px 10px">Differentiation: expert "data foundry"; $1B at $13.8B valuation (May 2024); Llama 3.1 launch partner</td><td style="padding:9px 10px">Repositioning after Google loss (≈30% of revenue): cost cuts, diversification, GenAI</td><td style="padding:9px 10px">Scale clear</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px;font-weight:700">Critical tasks</td><td style="padding:9px 10px">Route experts, verify quality, fast pipeline setup</td><td style="padding:9px 10px">Shift from volume collection to RLHF and evaluation; platform overhaul (Aug 2024)</td><td style="padding:9px 10px">Appen's tasks changing faster than its organization</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px;font-weight:700">Human resources</td><td style="padding:9px 10px">Expert contributors; Dec 2024 contractor pay lawsuit</td><td style="padding:9px 10px">1M+ broad crowd; low pay and no benefits raised by raters</td><td style="padding:9px 10px">Both weak on motivation; Appen also on depth</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px;font-weight:700">Culture</td><td style="padding:9px 10px">Meritocracy (MEI), high standards</td><td style="padding:9px 10px">Cost discipline, sales urgency (inferred)</td><td style="padding:9px 10px">Scale aligned; Appen's evidence thin</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px;font-weight:700">Formal organization</td><td style="padding:9px 10px">One integrated platform; task-based pay, automated QA, no formal career tracks</td><td style="padding:9px 10px">Sales and solutions report to CEO; platform rebuild under way; New Markets +42.6% to $116.2M</td><td style="padding:9px 10px">Scale more integrated</td></tr>
+        <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px;font-weight:700">Leadership</td><td style="padding:9px 10px">Stable founder-CEO (as of FY2024)</td><td style="padding:9px 10px">Three CEOs in two years; insider Ryan Kolln from Feb 2024</td><td style="padding:9px 10px">Scale stable; Appen disrupted</td></tr>
+        <tr style="background:var(--navy-l)"><td style="padding:9px 10px;font-weight:800">Overall</td><td style="padding:9px 10px;font-weight:700" class="sc">High, strained at contributors</td><td style="padding:9px 10px;font-weight:700" class="ap">Partial, improving</td><td style="padding:9px 10px"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 16–18; Wang (2024); Scale AI (2024c); Clarkson Law Firm (2024); Fox Business (2024); Appen Limited (2024a, 2024b, 2024d, 2024e, 2025b); Business News Australia (2022); CNBC (2024).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for Congruence Model questions.</aside>
+</section>
+
+<section class="slide appx" data-title="A7 Detailed SWOT Matrices">
+  <div class="sh"><div class="sec"><b>Appendix A7</b> · Detailed SWOT Matrices</div>
+  <h2>Full SWOT Items for Both Firms</h2></div>
+  <div class="bd">
+    <style>
+      .sx{position:absolute;top:0;width:712px;height:620px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:6px}
+      .sx .h{grid-column:1/3;font-size:20px;font-weight:800;padding:4px 0}
+      .sx .q{padding:10px 12px;font-size:16.5px;line-height:1.32}
+      .sx .q b{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;color:var(--navy)}
+      .sx ul{margin:0;padding-left:16px}
+      .sx li{margin-bottom:5px}
+    </style>
+    <div class="sx" style="left:0">
+      <div class="h sc">Scale AI</div>
+      <div class="q scb"><b>Strengths</b><ul><li>Integrated infrastructure: software + managed expertise</li><li>Domain-expert talent for advanced GenAI work</li><li>≈$1B raised (May 2024, $13.8B valuation); Meta Llama 3.1 and OpenAI ties; FY2024 revenue ≈$870M (est.)</li><li>Founder-driven agility</li></ul></div>
+      <div class="q scb"><b>Weaknesses</b><ul><li>Labor friction and legal exposure (Dec 2024 class action)</li><li>High expert operating costs; profitability undisclosed</li><li>Customer concentration among frontier AI labs</li></ul></div>
+      <div class="q" style="background:var(--soft)"><b>Opportunities</b><ul><li>Shift to high-value GenAI data, RLHF, red-teaming, evaluation</li><li>Market growth: $3.188B, +25.2% (2024)</li><li>Public-sector AI data demand</li></ul></div>
+      <div class="q" style="background:var(--soft)"><b>Threats</b><ul><li>Competition and strong buyer power</li><li>Data privacy and cross-border rules</li><li>Labor regulation (DOL probe begun 2024, disclosed Mar 2025)</li><li>Synthetic data and auto-labeling (less for expert evaluation)</li></ul></div>
+    </div>
+    <div class="sx" style="left:744px">
+      <div class="h ap">Appen</div>
+      <div class="q apb"><b>Strengths</b><ul><li>1M+ contributors, 170+ countries, 500+ languages</li><li>Nearly 30 years of data operations (since 1996)</li><li>Cost discipline: opex −33% (H1 2024); non-Google revenue +16.0%; underlying EBITDA +$3.5M</li></ul></div>
+      <div class="q apb"><b>Weaknesses</b><ul><li>Client concentration: Google ≈30% of revenue; FY2024 revenue −14.2%, net loss $20.0M</li><li>Crowd-centric, low-margin operations; legacy platform</li><li>Contributor friction, QA and ESG risk</li><li>Leadership instability (3 CEOs in 2 years)</li></ul></div>
+      <div class="q" style="background:var(--soft)"><b>Opportunities</b><ul><li>GenAI/LLM data demand: New Markets revenue +42.6% to $116.2M</li><li>Bias mitigation and localization: 37 new customers in China, Japan, Korea (H1 2024)</li></ul></div>
+      <div class="q" style="background:var(--soft)"><b>Threats</b><ul><li>Big Tech in-housing and buyer power</li><li>Synthetic data and auto-labeling (more exposed than tech-driven rivals)</li><li>Crowd-labor regulation, GDPR/CCPA, "AI ghost worker" scrutiny</li></ul></div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 19–22; Sacra (n.d.); MarketLine (2025); Clarkson Law Firm (2024); TechCrunch (2025); Appen Limited (2024e, 2025b); Taylor (2024).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Backup for SWOT questions.</aside>
+</section>
+
+<section class="slide appx" data-title="A8 References">
+  <div class="sh"><div class="sec"><b>Appendix A8</b> · References</div>
+  <h2>References</h2></div>
+  <div class="bd" style="top:150px">
+    <ol style="margin:0;padding-left:0;list-style:none;columns:3;column-gap:36px;font-size:13.5px;line-height:1.36;color:var(--text)">
+      <li style="break-inside:avoid;margin-bottom:5px">Alba, D. (2023, July 12). Google's Bard AI chatbot is trained by humans who say they're overworked, underpaid and frustrated. <i>Fortune</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Alphabet Workers Union-CWA. (2024, January). Appen contractors speak out against contract cancellation [Press release].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen. (n.d.). Appen vs the competition.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2024a, January 22). Customer update and FY23 preliminary results [ASX announcement].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2024b, February 5). Ryan Kolln appointed CEO and Managing Director [ASX announcement].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2024c, February 12). Update on cost management [ASX announcement].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2024d, August 30). Appendix 4D and interim financial report for the half-year ended 30 June 2024.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2024e, August 30). 2024 half-year results and 2024 outlook [ASX announcement].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2025a). Annual report 2024.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2025b, February 26). FY24 results and FY25 outlook [ASX announcement].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Appen Limited. (2026, February 25). Annual report 2025.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Atos SE. (2025). 2024 universal registration document.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Benzinga. (2024, December 13). Wage theft allegations target $13.8B tech giant Scale AI.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Business News Australia. (2022, December). Appen CEO Brayan quits as embattled AI company steps up board renewal plan.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Capoot, A. (2025, June 18). Scale AI not 'winding down' following Meta deal, interim CEO tells employees and customers. <i>CNBC</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Clarkson Law Firm. (2024, December 10). Class action filed against Scale AI [Press release].</li>
+      <li style="break-inside:avoid;margin-bottom:5px">CNBC. (2024, May). Embattled AI firm Appen loses more executives months after Alphabet cut ties. <i>NECN</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">DiFeliciantonio, C. (2024, December 10). Lawsuit claims S.F. AI company underpaid and misclassified workers hired to train models. <i>San Francisco Chronicle</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">European Commission. (2024). Regulatory framework for AI.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Fox Business. (2024, June 15). Scale AI CEO explains why his company will hire for MEI, not DEI.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Godoy, J. (2025, June 13). Meta's $14.8 billion Scale AI deal latest test of AI partnerships. <i>Reuters</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Goodwin, D. (2024, January 22). Google terminates contract with Appen for search quality raters. <i>Search Engine Journal</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Grand View Research. (2024, November). Data collection and labeling market size, share &amp; trends analysis report, 2025–2030.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">IBM. (2024). What is data labeling? <i>IBM Think</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Kerr, D. (2023, March 31). Google's 'ghost workers' are demanding to be seen by the tech giant. <i>NPR</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Kolln, R. (2024, December 18). A year in review: 2024 and the road ahead. Appen.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">MarketLine. (2025, February). Global data collection and labeling.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">McKool Smith. (2024, November 23). AI infringement case updates: The New York Times v. Microsoft &amp; OpenAI.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Mehta, I. (2025, June 13). Scale AI confirms 'significant' investment from Meta, says CEO Alexandr Wang is leaving. <i>TechCrunch</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Multiples. (n.d.). Scale AI revenue, valuation &amp; funding.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">O'Brien, M. (2025, June 13). Meta invests $14.3B in AI firm Scale and recruits its CEO for 'superintelligence' team. <i>AP News</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">OpenAI. (2023, August 24). OpenAI partners with Scale to provide support for enterprises fine-tuning models.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Outlier. (n.d.). About us.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Radeta, M., et al. (2024). Man and the machine: Effects of AI-assisted human labeling on interactive annotation of real-time video streams. <i>ACM TiiS, 14</i>(2), 10.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">The Register. (2023, June 21). We just don't get enough time, contractor tasked with fact-checking Google Bard tells us.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Sacra. (n.d.). Scale AI revenue, valuation &amp; funding.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Saini, M. (2024, May 21). Scale AI valued at $14 bln in Nvidia, Amazon-backed funding round. <i>Reuters</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Sawers, P. (2024, May 21). Data-labeling startup Scale AI raises $1B as valuation doubles to $13.8B. <i>TechCrunch</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Scale AI. (n.d.-a). About us: Reliable AI for critical decisions.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Scale AI. (n.d.-b). Meet the contributors.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Scale AI. (n.d.-c). Data labeling: The authoritative guide.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Scale AI. (2024a, February 20). Scale AI partners with DoD's CDAO to test and evaluate LLMs.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Scale AI. (2024b, May 29). Scale's SEAL Research Lab launches expert-evaluated LLM leaderboards.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Scale AI. (2024c, July 23). Scale is proud to be a Llama 3.1 launch partner.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Stock Analysis. (n.d.). Appen Limited (ASX: APX) revenue and employee history.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Taylor, J. (2024, January 23). Precarious conditions of 'AI ghost workers' revealed by Google termination of Appen contract, union says. <i>The Guardian</i>.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">TechCrunch. (2025, March 6). Scale AI is being investigated by the US Department of Labor.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Teleperformance SE. (2025). 2024 universal registration document.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">TELUS Digital Experience. (2025). Annual report 2024.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Wang, A. (2019, August 5). Scale AI's Series C: Building the data platform to accelerate machine learning. Scale AI.</li>
+      <li style="break-inside:avoid;margin-bottom:5px">Wang, A. (2024, May 21). Scale's Series F: Expanding the data foundry for AI. Scale AI.</li>
+    </ol>
+  </div>
+  <div class="sf"><span class="src">Full list with URLs: Report pp. 26–29 (APA 7th).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Reference list as in the report.</aside>
+</section>
+
+<section class="slide appx" data-title="A9 Analysis Limitations">
+  <div class="sh"><div class="sec"><b>Appendix A9</b> · Analysis Limitations</div>
+  <h2>What This Analysis Can and Cannot Claim</h2></div>
+  <div class="bd">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px 40px">
+      <div style="border-top:2px solid var(--navy);padding-top:12px"><div style="font-size:22px;font-weight:700;color:var(--navy)">Scale AI financials are estimates</div><div style="font-size:19px;line-height:1.4;margin-top:6px;color:var(--text)">Revenue and growth come from third-party sources (Sacra); trends are read cautiously.</div></div>
+      <div style="border-top:2px solid var(--navy);padding-top:12px"><div style="font-size:22px;font-weight:700;color:var(--navy)">Scale AI profitability is undisclosed</div><div style="font-size:19px;line-height:1.4;margin-top:6px;color:var(--text)">No profitability comparison between the two firms is made.</div></div>
+      <div style="border-top:2px solid var(--navy);padding-top:12px"><div style="font-size:22px;font-weight:700;color:var(--navy)">Revenue ÷ industry size is a rough proxy</div><div style="font-size:19px;line-height:1.4;margin-top:6px;color:var(--text)">An upper-bound indicator, not verified market share: firm revenue includes services outside the defined market.</div></div>
+      <div style="border-top:2px solid var(--navy);padding-top:12px"><div style="font-size:22px;font-weight:700;color:var(--navy)">Google's exit directly hit Appen</div><div style="font-size:19px;line-height:1.4;margin-top:6px;color:var(--text)">Part of Appen's 2024 decline is a client loss; AI-driven change does not explain the whole gap.</div></div>
+      <div style="border-top:2px solid var(--navy);padding-top:12px"><div style="font-size:22px;font-weight:700;color:var(--navy)">FY2024 scope</div><div style="font-size:19px;line-height:1.4;margin-top:6px;color:var(--text)">Later developments (e.g., Meta's 2025 stake in Scale AI and CEO change) are post-period and excluded from the assessment.</div></div>
+      <div style="border-top:2px solid var(--navy);padding-top:12px"><div style="font-size:22px;font-weight:700;color:var(--navy)">Frameworks are qualitative</div><div style="font-size:19px;line-height:1.4;margin-top:6px;color:var(--text)">VRIO ratings, strategic-group placement and positioning are judgments, not proven causal relationships.</div></div>
+    </div>
+  </div>
+  <div class="sf"><span class="src">Source: Report pp. 2, 10, 25 (scope and data notes).</span><span class="pg"></span></div>
+  <aside class="notes" data-presenter="Appendix" data-time="—">Use if asked about data reliability or causality.</aside>
+</section>
+
+</div><!-- /deck -->
+</div><!-- /stage -->
+<aside class="notes-panel" id="notesPanel" hidden aria-label="Presenter notes">
+  <h3>Presenter notes</h3>
+  <div class="np-meta" id="npMeta"></div>
+  <div class="np-timer"><span id="npTimer">00:00</span><button type="button" id="npReset">Reset timer</button></div>
+  <div class="np-body" id="npBody"></div>
+  <div class="np-next" id="npNext"></div>
+</aside>
+</div><!-- /main -->
+<nav class="bar" aria-label="Slide controls">
+  <div class="prog" id="prog"></div>
+  <button type="button" id="prev" aria-label="Previous slide">← Prev</button>
+  <span class="count" id="count" aria-live="polite">1 / 24</span>
+  <button type="button" id="next" aria-label="Next slide">Next →</button>
+  <span class="title" id="curTitle"></span>
+  <span class="help">←/→ Space · O overview · N notes · F fullscreen</span>
+  <button type="button" id="ovBtn" aria-pressed="false">Overview</button>
+  <button type="button" id="notesBtn" aria-pressed="false">Notes</button>
+  <button type="button" id="fsBtn">Fullscreen</button>
+</nav>
+</div><!-- /app -->
+
+<div class="overview" id="overview" hidden>
+  <h3>All slides: main deck (01–15) and appendix (A1–A9). Click to open.</h3>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script>
+(function(){
+  const deck=document.getElementById('deck'), stage=document.getElementById('stage');
+  const slides=[...deck.querySelectorAll('.slide')];
+  const mainCount=slides.filter(s=>!s.classList.contains('appx')).length;
+  // labels and page numbers
+  let a=0;
+  slides.forEach((s,i)=>{
+    const isA=s.classList.contains('appx');
+    s.dataset.label=isA?('A'+(++a)):String(i+1).padStart(2,'0');
+    const pg=s.querySelector('.pg');
+    if(pg) pg.textContent=isA?('Appendix '+s.dataset.label):(s.dataset.label+' / '+String(mainCount).padStart(2,'0'));
+  });
+  let cur=0;
+  const count=document.getElementById('count'), prog=document.getElementById('prog'), curTitle=document.getElementById('curTitle');
+  function fit(){
+    const vw=stage.clientWidth, vh=stage.clientHeight, pad=Math.min(24,vw*0.02);
+    const s=Math.min((vw-pad*2)/1600,(vh-pad*2)/900);
+    deck.style.transform=`translate(${(vw-1600*s)/2}px,${(vh-900*s)/2}px) scale(${s})`;
+  }
+  function show(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+    const s=slides[cur];
+    count.textContent=(s.classList.contains('appx')?s.dataset.label:s.dataset.label+' / '+String(mainCount).padStart(2,'0'))+'  ·  '+(cur+1)+'/'+slides.length;
+    prog.style.width=((cur+1)/slides.length*100)+'%';
+    curTitle.textContent=s.dataset.title.replace(/&amp;/g,'&');
+    try{ if(location.hash!=='#slide-'+(cur+1)) history.replaceState(null,'','#slide-'+(cur+1)); }catch(e){}
+    renderNotes();
+  }
+  // notes
+  const panel=document.getElementById('notesPanel'), npBody=document.getElementById('npBody'), npMeta=document.getElementById('npMeta'), npNext=document.getElementById('npNext');
+  function renderNotes(){
+    const n=slides[cur].querySelector('.notes');
+    npMeta.innerHTML='';
+    if(n){
+      [slides[cur].dataset.label, n.dataset.presenter, n.dataset.time&&n.dataset.time!=='—'?('Target '+n.dataset.time):null].filter(Boolean).forEach(t=>{const sp=document.createElement('span');sp.textContent=t;npMeta.appendChild(sp)});
+      npBody.textContent=n.textContent.trim();
+    } else npBody.textContent='';
+    const nx=slides[cur+1];
+    npNext.textContent=nx?('Next: '+nx.dataset.label+' · '+nx.dataset.title.replace(/&amp;/g,'&')):'End of deck';
+  }
+  let t0=Date.now();
+  setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);document.getElementById('npTimer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);
+  document.getElementById('npReset').onclick=()=>{t0=Date.now()};
+  const notesBtn=document.getElementById('notesBtn');
+  function toggleNotes(force){
+    const on=force!==undefined?force:panel.hidden;
+    panel.hidden=!on; notesBtn.setAttribute('aria-pressed',on);
+    try{localStorage.setItem('deckNotes',on?'1':'0')}catch(e){}
+    fit();
+  }
+  notesBtn.onclick=()=>toggleNotes();
+  // overview
+  const ov=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid'), ovBtn=document.getElementById('ovBtn');
+  function buildOverview(){
+    ovGrid.innerHTML='';
+    slides.forEach((s,i)=>{
+      const th=document.createElement('div'); th.className='thumb'+(i===cur?' cur':''); th.tabIndex=0;
+      th.setAttribute('role','button'); th.setAttribute('aria-label','Go to slide '+s.dataset.label);
+      const c=s.cloneNode(true); c.classList.add('active'); c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+      th.appendChild(c);
+      const l=document.createElement('span'); l.className='lbl'; l.textContent=s.dataset.label+' · '+s.dataset.title.replace(/&amp;/g,'&'); th.appendChild(l);
+      th.onclick=()=>{toggleOverview(false);show(i)};
+      th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();th.click()}};
+      ovGrid.appendChild(th);
+    });
+    requestAnimationFrame(scaleThumbs);
+  }
+  function scaleThumbs(){ovGrid.querySelectorAll('.thumb').forEach(th=>{const sc=th.clientWidth/1600;th.querySelector('.slide').style.transform=`scale(${sc})`})}
+  function toggleOverview(force){
+    const on=force!==undefined?force:ov.hidden;
+    ov.hidden=!on; ovBtn.setAttribute('aria-pressed',on);
+    if(on){buildOverview(); setTimeout(()=>{const c=ovGrid.querySelector('.cur'); if(c){c.focus(); c.scrollIntoView({block:'center'})}},30)}
+  }
+  ovBtn.onclick=()=>toggleOverview();
+  // fullscreen
+  function toggleFS(){
+    const d=document;
+    if(!d.fullscreenElement){ (d.documentElement.requestFullscreen?d.documentElement.requestFullscreen():Promise.reject()).catch(()=>{}); }
+    else { d.exitFullscreen().catch(()=>{}); }
+  }
+  document.getElementById('fsBtn').onclick=toggleFS;
+  document.addEventListener('fullscreenchange',()=>setTimeout(fit,50));
+  document.getElementById('prev').onclick=()=>show(cur-1);
+  document.getElementById('next').onclick=()=>show(cur+1);
+  document.addEventListener('keydown',e=>{
+    if(e.target.closest&&e.target.closest('input,textarea'))return;
+    if(!ov.hidden){ if(e.key==='Escape'||e.key==='o'||e.key==='O'){toggleOverview(false)} return; }
+    if(e.key==='ArrowRight'||e.key==='PageDown'||(e.key===' '&&!e.shiftKey)){e.preventDefault();show(cur+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'||(e.key===' '&&e.shiftKey)){e.preventDefault();show(cur-1)}
+    else if(e.key==='Home'){show(0)} else if(e.key==='End'){show(slides.length-1)}
+    else if(e.key==='o'||e.key==='O'){toggleOverview()}
+    else if(e.key==='n'||e.key==='N'){toggleNotes()}
+    else if(e.key==='f'||e.key==='F'){toggleFS()}
+  });
+  // touch swipe
+  let tx=null; stage.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+  stage.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));tx=null});
+  window.addEventListener('resize',()=>{fit(); if(!ov.hidden)scaleThumbs()});
+  if(typeof ResizeObserver!=='undefined') new ResizeObserver(fit).observe(stage);
+  window.addEventListener('hashchange',()=>{const m=location.hash.match(/^#slide-(\d+)$/); if(m)show(+m[1]-1)});
+  const m=location.hash.match(/^#slide-(\d+)$/);
+  try{ if(localStorage.getItem('deckNotes')==='1') toggleNotes(true) }catch(e){}
+  fit(); show(m?+m[1]-1:0);
+  window.__deck={show,count:slides.length};
+})();
+</script>
+
+</body></html>
